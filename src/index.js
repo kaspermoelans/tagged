@@ -5,6 +5,7 @@ const { Server } = require("socket.io");
 
 const app = express()
 const httpServer = createServer(app);
+const PORT = process.env.PORT || 5000;
 
 const io = new Server(httpServer);
 
@@ -175,7 +176,7 @@ async function main() {
     
     app.use(express.static("public"))
     
-    httpServer.listen(3000);
+    httpServer.listen(PORT);
 
     let lastUpdate = Date.now()
     setInterval(() => {
