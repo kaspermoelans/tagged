@@ -97,10 +97,18 @@ function tick(delta) {
             player.speedY += 1
 
             if (inputs.left) {
-                player.x -= player.speedX
+                if (player.tagged === "yes") {
+                    player.x -= player.speedX * 1.3
+                } else {
+                    player.x -= player.speedX
+                }
                 player.direction = "left"
             } else if (inputs.right) {
-                player.x += player.speedX
+                if (player.tagged === "yes") {
+                    player.x += player.speedX * 1.3
+                } else {
+                    player.x += player.speedX
+                }
                 player.direction = "right"
             }
 
