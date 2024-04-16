@@ -95,9 +95,9 @@ function tick(delta) {
                 player.direction = "left"
             } else if (inputs.right) {
                 if (player.tagged === "yes") {
-                    player.x -= player.speedX * 1.5
+                    player.x += player.speedX * 1.5
                 } else {
-                    player.x -= player.speedX
+                    player.x += player.speedX
                 }
                 player.direction = "right"
             }
