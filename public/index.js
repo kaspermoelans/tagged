@@ -85,34 +85,45 @@ const inputs = {
 }
 
 window.addEventListener('keydown', (e) => {
-    if (e.key === 'z' || e.key === 'ArrowUp') {
+  console.log(e)
+    if (e.key === 'z' || e.key === 'ArrowUp' || e.key === ' ') {
         inputs['up'] = true
-    } else if (e.key === 's' || e.key === 'ArrowDown') {
+    }
+    if (e.key === 's' || e.key === 'ArrowDown') {
         inputs['dash'] = true
-    } else if (e.key === 'q' || e.key === 'ArrowLeft') {
+    }
+    if (e.key === 'q' || e.key === 'ArrowLeft') {
         inputs['left'] = true
-    } else if (e.key === 'd' || e.key === 'ArrowRight') {
+    }
+    if (e.key === 'd' || e.key === 'ArrowRight') {
         inputs['right'] = true
-    } else if (e.key === 'e') {
+    }
+    if (e.key === 'e') {
       inputs['switchSkin'] = true
-    } else if (e.key === 't') {
+    }
+    if (e.key === 't') {
       inputs['tagged'] = true
     }
     socket.emit('inputs', inputs)
 })
 
 window.addEventListener('keyup', (e) => {
-    if (e.key === 'z' || e.key === 'ArrowUp') {
+    if (e.key === 'z' || e.key === 'ArrowUp' || e.key === ' ') {
         inputs['up'] = false
-    } else if (e.key === 's' || e.key === 'ArrowDown') {
+    }
+    if (e.key === 's' || e.key === 'ArrowDown') {
         inputs['dash'] = false
-    } else if (e.key === 'q' || e.key === 'ArrowLeft') {
+    }
+    if (e.key === 'q' || e.key === 'ArrowLeft') {
         inputs['left'] = false
-    } else if (e.key === 'd' || e.key === 'ArrowRight') {
+    }
+    if (e.key === 'd' || e.key === 'ArrowRight') {
         inputs['right'] = false
-    } else if (e.key === 'e') {
+    }
+    if (e.key === 'e') {
       inputs['switchSkin'] = false
-    } else if (e.key === 't') {
+    }
+    if (e.key === 't') {
       inputs['tagged'] = false
     }
     socket.emit('inputs', inputs)
