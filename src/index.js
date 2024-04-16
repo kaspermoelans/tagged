@@ -109,8 +109,8 @@ function tick(delta) {
             }
 
             if (player.y > 4000) {
-                player.y = 3350
-                player.x = 2000
+                player.x = 1910
+                player.y = 2200
             }
         }
 
@@ -161,8 +161,8 @@ async function main() {
 
         players.push({
             id: socket.id,
-            x: 2000,
-            y: 3350,
+            x: 1910,
+            y: 2200,
             speedX: 5,
             speedY: 5,
             speedJump: -12,
