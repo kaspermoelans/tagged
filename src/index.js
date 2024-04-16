@@ -75,6 +75,7 @@ function tick(delta) {
             player.y += player.speedY
 
             if (isCollidingWithMap(player)) {
+                player.dashAvailable = true
                 player.y = previousY
                 if (inputs.up) {
                     player.speedY = player.speedJump
@@ -82,23 +83,24 @@ function tick(delta) {
                 if (player.speedY > 5) {
                     player.speedY = 5
                 }
+            } else if (inputs.dash && player.dashAvailable) {
+                if (inputs.left) {
+                    player.x -= player.speedX * 20
+                    player.dashAvailable = false
+                }
+                if (inputs.right) {
+                    player.x += player.speedX * 20
+                    player.dashAvailable = false
+                }
             }
 
             player.speedY += 1
 
             if (inputs.left) {
-                if (player.tagged === "yes") {
-                    player.x -= player.speedX * 1.5
-                } else {
-                    player.x -= player.speedX
-                }
+                player.x -= player.speedX
                 player.direction = "left"
             } else if (inputs.right) {
-                if (player.tagged === "yes") {
-                    player.x += player.speedX * 1.5
-                } else {
-                    player.x += player.speedX
-                }
+                player.x += player.speedX
                 player.direction = "right"
             }
 
@@ -168,7 +170,8 @@ async function main() {
             skinNumber: 0,
             direction: "right",
             tagged: "no",
-            countdown: 0
+            countdown: 0,
+            dashAvailable: true
         })
 
         socket.emit('map', map2D)
@@ -184,7 +187,7 @@ async function main() {
     
     app.use(express.static("public"))
     
-    httpServer.listen(PORT);
+    httpServer.listen(3000);
 
     let lastUpdate = Date.now()
     setInterval(() => {
