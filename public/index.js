@@ -1,6 +1,7 @@
 const mapImage = new Image();
 mapImage.src = "/tiles.png";
 
+// Skins
 const right_taggedImage = new Image();
 right_taggedImage.src = "/right_tagged.png";
 const left_taggedImage = new Image();
@@ -51,6 +52,16 @@ right_blue_dudeImage.src = "/right_blue_dude.png";
 const left_blue_dudeImage = new Image();
 left_blue_dudeImage.src = "/left_blue_dude.png";
 
+// Boosts
+const invisibilityImage = new Image();
+invisibilityImage.src = "/invisibility.png";
+
+const jumpboostImage = new Image();
+jumpboostImage.src = "/jumpboost.png";
+
+const speedboostImage = new Image();
+speedboostImage.src = "/speedboost.png";
+
 const canvasEl = document.getElementById("canvas");
 canvasEl.width = window.innerWidth;
 canvasEl.height = window.innerHeight;
@@ -60,6 +71,9 @@ const socket = io();
 
 let map = [[]];
 let players = []
+let boosts = []
+
+const boostNames = ["invisibility", "jumpboost", "speedboost"]
 
 const TILE_SIZE = 32;
 
@@ -75,6 +89,10 @@ socket.on('players', (serverPlayers) => {
     players = serverPlayers
 })
 
+socket.on('boosts', (serverBoosts) => {
+  boosts = serverBoosts
+})
+
 const inputs = {
     up: false,
     dash: false,
@@ -85,7 +103,6 @@ const inputs = {
 }
 
 window.addEventListener('keydown', (e) => {
-  console.log(e)
     if (e.key === 'z' || e.key === 'ArrowUp' || e.key === ' ') {
         inputs['up'] = true
     }
@@ -165,54 +182,66 @@ function loop() {
     }
   }
 
+  for (const boost of boosts) {
+    if (boostNames[boost.type] === "invisibility") {
+      canvas.drawImage(invisibilityImage, boost.x - cameraX, boost.y - cameraY)
+    } else if (boostNames[boost.type] === "jumpboost") {
+      canvas.drawImage(jumpboostImage, boost.x - cameraX, boost.y - cameraY)
+    } else if (boostNames[boost.type] === "speedboost") {
+      canvas.drawImage(speedboostImage, boost.x - cameraX, boost.y - cameraY)
+    }
+  }
+
   for (const player of players) {
-    if (player.direction === "left") {
-      if (player.tagged === "yes") {
-        canvas.drawImage(left_taggedImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "red_santa") {
-        canvas.drawImage(left_red_santaImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "pink_santa") {
-        canvas.drawImage(left_pink_santaImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "banana") {
-        canvas.drawImage(left_bananaImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "tomato") {
-        canvas.drawImage(left_tomatoImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "viking") {
-        canvas.drawImage(left_vikingImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "ninja") {
-        canvas.drawImage(left_ninjaImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "pink_dude") {
-        canvas.drawImage(left_pink_dudeImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "white_dude") {
-        canvas.drawImage(left_white_dudeImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "blue_dude") {
-        canvas.drawImage(left_blue_dudeImage, player.x - cameraX, player.y - cameraY)
-      } else {
-        canvas.drawImage(left_red_santaImage, player.x - cameraX, player.y - cameraY)
-      }
-    } else if (player.direction === "right") {
-      if (player.tagged === "yes") {
-        canvas.drawImage(right_taggedImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "red_santa") {
-        canvas.drawImage(right_red_santaImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "pink_santa") {
-        canvas.drawImage(right_pink_santaImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "banana") {
-        canvas.drawImage(right_bananaImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "tomato") {
-        canvas.drawImage(right_tomatoImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "viking") {
-        canvas.drawImage(right_vikingImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "ninja") {
-        canvas.drawImage(right_ninjaImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "pink_dude") {
-        canvas.drawImage(right_pink_dudeImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "white_dude") {
-        canvas.drawImage(right_white_dudeImage, player.x - cameraX, player.y - cameraY)
-      } else if (player.skin === "blue_dude") {
-        canvas.drawImage(right_blue_dudeImage, player.x - cameraX, player.y - cameraY)
-      } else {
-        canvas.drawImage(right_red_santaImage, player.x - cameraX, player.y - cameraY)
+    if (player.boost !== "invisibility" || player.id === myPlayer.id) {
+      if (player.direction === "left") {
+        if (player.tagged === "yes") {
+          canvas.drawImage(left_taggedImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "red_santa") {
+          canvas.drawImage(left_red_santaImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "pink_santa") {
+          canvas.drawImage(left_pink_santaImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "banana") {
+          canvas.drawImage(left_bananaImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "tomato") {
+          canvas.drawImage(left_tomatoImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "viking") {
+          canvas.drawImage(left_vikingImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "ninja") {
+          canvas.drawImage(left_ninjaImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "pink_dude") {
+          canvas.drawImage(left_pink_dudeImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "white_dude") {
+          canvas.drawImage(left_white_dudeImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "blue_dude") {
+          canvas.drawImage(left_blue_dudeImage, player.x - cameraX, player.y - cameraY)
+        } else {
+          canvas.drawImage(left_red_santaImage, player.x - cameraX, player.y - cameraY)
+        }
+      } else if (player.direction === "right") {
+        if (player.tagged === "yes") {
+          canvas.drawImage(right_taggedImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "red_santa") {
+          canvas.drawImage(right_red_santaImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "pink_santa") {
+          canvas.drawImage(right_pink_santaImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "banana") {
+          canvas.drawImage(right_bananaImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "tomato") {
+          canvas.drawImage(right_tomatoImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "viking") {
+          canvas.drawImage(right_vikingImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "ninja") {
+          canvas.drawImage(right_ninjaImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "pink_dude") {
+          canvas.drawImage(right_pink_dudeImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "white_dude") {
+          canvas.drawImage(right_white_dudeImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "blue_dude") {
+          canvas.drawImage(right_blue_dudeImage, player.x - cameraX, player.y - cameraY)
+        } else {
+          canvas.drawImage(right_red_santaImage, player.x - cameraX, player.y - cameraY)
+        }
       }
     }
   }
