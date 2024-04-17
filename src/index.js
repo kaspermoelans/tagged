@@ -19,7 +19,11 @@ const TILE_SIZE = 32
 let players = []
 let map2D
 const inputsMap = {}
-let skins = ["red_santa", "pink_santa", "banana", "tomato", "viking", "ninja", "pink_dude", "white_dude", "blue_dude"]
+const skins = ["red_santa", "pink_santa", "banana", "tomato", "viking", "ninja", "pink_dude", "white_dude", "blue_dude"]
+const boostNames = ["invisibility", "jumpboost", "speedboost"]
+const boostDurations = [30 * 1000, 30 * 1000, 30 * 1000]
+let boosts = []
+let boostCountdown = 10 * 1000
 
 const SPEED = {
     x: 5,
@@ -78,7 +82,11 @@ function tick(delta) {
                 player.dashAvailable = true
                 player.y = previousY
                 if (inputs.up) {
-                    player.speedY = player.speedJump
+                    if (player.boost === "jumpboost") {
+                        player.speedY = player.speedJump * 1.5
+                    } else {
+                        player.speedY = player.speedJump
+                    }
                 }
                 if (player.speedY > 5) {
                     player.speedY = 5
@@ -97,15 +105,15 @@ function tick(delta) {
             player.speedY += 1
 
             if (inputs.left) {
-                if (player.tagged === "yes") {
-                    player.x -= player.speedX * 1.3
+                if (player.boost === "speedboost") {
+                    player.x -= player.speedX * 1.5
                 } else {
                     player.x -= player.speedX
                 }
                 player.direction = "left"
             } else if (inputs.right) {
-                if (player.tagged === "yes") {
-                    player.x += player.speedX * 1.3
+                if (player.boost === "speedboost") {
+                    player.x += player.speedX * 1.5
                 } else {
                     player.x += player.speedX
                 }
@@ -150,8 +158,38 @@ function tick(delta) {
             player.countdown = 10 * 1000
             inputs.tagged = false
         }
+
+        for (const boost of boosts) {
+            if (isColliding({x: player.x, y: player.y, w: 32, h:32}, {x: boost.x, y: boost.y, w: 32, h: 32})) {
+                player.boost = boostNames[boost.type]
+                player.boostCountdown = boostDurations[boost.type]
+                boosts = boosts.filter(filterBoost => filterBoost !== boost)
+                console.log("player boost", player.boost)
+            } else if (boost.countdown <= 0) {
+                boosts = boosts.filter(filterBoost => filterBoost !== boost)
+            }
+        }
+
+        player.boostCountdown -= delta
+
+        if (player.boostCountdown <= 0) {
+            player.boost = "none"
+        }
+    }
+    boostCountdown -= delta
+    if (boostCountdown <= 0) {
+        if (boosts.length < 20) {
+            boosts.push({x: Math.random() * 3500, y: Math.random() * 3500, countdown: 60 * 1000, type: Math.floor(Math.random() * (boostNames.length))})
+            while (isCollidingWithMap(boosts[boosts.length - 1])) {
+                boosts[boosts.length - 1].x = Math.random() * 3500
+                boosts[boosts.length - 1].y = Math.random() * 3500
+            }
+        }
+        boostCountdown = 10 * 1000
+        console.log("boosts", boosts)
     }
     io.emit('players', players)
+    io.emit('boosts', boosts)
 }
 
 async function main() {
@@ -179,7 +217,9 @@ async function main() {
             direction: "right",
             tagged: "no",
             countdown: 0,
-            dashAvailable: true
+            dashAvailable: true,
+            boost: "none",
+            boostCountdown: 0
         })
 
         socket.emit('map', map2D)
