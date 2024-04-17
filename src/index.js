@@ -164,7 +164,6 @@ function tick(delta) {
                 player.boost = boostNames[boost.type]
                 player.boostCountdown = boostDurations[boost.type]
                 boosts = boosts.filter(filterBoost => filterBoost !== boost)
-                console.log("player boost", player.boost)
             } else if (boost.countdown <= 0) {
                 boosts = boosts.filter(filterBoost => filterBoost !== boost)
             }
@@ -186,7 +185,6 @@ function tick(delta) {
             }
         }
         boostCountdown = 10 * 1000
-        console.log("boosts", boosts)
     }
     io.emit('players', players)
     io.emit('boosts', boosts)
