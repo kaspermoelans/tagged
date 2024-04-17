@@ -177,7 +177,7 @@ function tick(delta) {
     }
     boostCountdown -= delta
     if (boostCountdown <= 0) {
-        if (boosts.length < 20) {
+        if (boosts.length < 15) {
             boosts.push({x: Math.random() * 3500, y: Math.random() * 3500, countdown: 60 * 1000, type: Math.floor(Math.random() * (boostNames.length))})
             while (isCollidingWithMap(boosts[boosts.length - 1])) {
                 boosts[boosts.length - 1].x = Math.random() * 3500
