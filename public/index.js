@@ -62,6 +62,12 @@ jumpboostImage.src = "/jumpboost.png";
 const speedboostImage = new Image();
 speedboostImage.src = "/speedboost.png";
 
+const shieldImage = new Image();
+shieldImage.src = "/shield.png";
+
+const portalImage = new Image();
+portalImage.src = "/portal.png";
+
 const canvasEl = document.getElementById("canvas");
 canvasEl.width = window.innerWidth;
 canvasEl.height = window.innerHeight;
@@ -73,7 +79,7 @@ let map = [[]];
 let players = []
 let boosts = []
 
-const boostNames = ["invisibility", "jumpboost", "speedboost"]
+const boostNames = ["invisibility", "jumpboost", "speedboost", "shield", "portal"]
 
 const TILE_SIZE = 32;
 
@@ -189,6 +195,10 @@ function loop() {
       canvas.drawImage(jumpboostImage, boost.x - cameraX, boost.y - cameraY)
     } else if (boostNames[boost.type] === "speedboost") {
       canvas.drawImage(speedboostImage, boost.x - cameraX, boost.y - cameraY)
+    } else if (boostNames[boost.type] === "shield") {
+      canvas.drawImage(shieldImage, boost.x - cameraX, boost.y - cameraY)
+    } else if (boostNames[boost.type] === "portal") {
+      canvas.drawImage(portalImage, boost.x - cameraX, boost.y - cameraY)
     }
   }
 
