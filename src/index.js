@@ -197,7 +197,7 @@ function tick(delta) {
                 boosts[boosts.length - 1].y = Math.random() * 3500
             }
         }
-        boostCountdown = 10 * 1000
+        boostCountdown = 5 * 1000
         console.log("boosts", boosts)
     }
     io.emit('players', players)
