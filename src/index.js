@@ -21,7 +21,7 @@ let map2D
 const inputsMap = {}
 const skins = ["red_santa", "pink_santa", "banana", "tomato", "viking", "ninja", "pink_dude", "white_dude", "blue_dude"]
 const boostNames = ["invisibility", "jumpboost", "speedboost", "shield", "portal"]
-const boostDurations = [30 * 1000, 30 * 1000, 30 * 1000, 10 * 1000, 0]
+const boostDurations = [30 * 1000, 30 * 1000, 30 * 1000, 15 * 1000, 0]
 let boosts = []
 let boostCountdown = 10 * 1000
 
