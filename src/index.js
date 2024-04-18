@@ -20,8 +20,8 @@ let players = []
 let map2D
 const inputsMap = {}
 const skins = ["red_santa", "pink_santa", "banana", "tomato", "viking", "ninja", "pink_dude", "white_dude", "blue_dude"]
-const boostNames = ["invisibility", "jumpboost", "speedboost"]
-const boostDurations = [30 * 1000, 30 * 1000, 30 * 1000]
+const boostNames = ["invisibility", "jumpboost", "speedboost", "shield", "portal"]
+const boostDurations = [30 * 1000, 30 * 1000, 30 * 1000, 10 * 1000, 0]
 let boosts = []
 let boostCountdown = 10 * 1000
 
@@ -139,7 +139,7 @@ function tick(delta) {
             inputsMap[player.id].switchSkin = false
         }
 
-        if (player.tagged === "no") {
+        if (player.tagged === "no" && player.boost !== "shield") {
             for (let otherPlayer of players) {
                 if (otherPlayer.tagged === "yes" && isColliding({x: player.x, y: player.y, w: 32, h: 32}, {x: otherPlayer.x, y: otherPlayer.y, w: 32, h: 32}) && otherPlayer !== player && otherPlayer.countdown <= 0) {
                     player.tagged = "yes"
@@ -161,11 +161,24 @@ function tick(delta) {
 
         for (const boost of boosts) {
             if (isColliding({x: player.x, y: player.y, w: 32, h:32}, {x: boost.x, y: boost.y, w: 32, h: 32})) {
-                player.boost = boostNames[boost.type]
-                player.boostCountdown = boostDurations[boost.type]
+                if (boostNames[boost.type] === "portal") {
+                    player.x = Math.random() * 3500
+                    player.y = Math.random() * 3500
+                    while (isCollidingWithMap(player)) {
+                        player.x = Math.random() * 3500
+                        player.y = Math.random() * 3500
+                    }
+                } else {
+                    player.boost = boostNames[boost.type]
+                    player.boostCountdown = boostDurations[boost.type]
+                }
                 boosts = boosts.filter(filterBoost => filterBoost !== boost)
+                console.log("player boost", player.boost)
             } else if (boost.countdown <= 0) {
                 boosts = boosts.filter(filterBoost => filterBoost !== boost)
+            }
+            if (boosts.length < 20) {
+                boost.countdown -= delta
             }
         }
 
@@ -177,7 +190,7 @@ function tick(delta) {
     }
     boostCountdown -= delta
     if (boostCountdown <= 0) {
-        if (boosts.length < 15) {
+        if (boosts.length < 20) {
             boosts.push({x: Math.random() * 3500, y: Math.random() * 3500, countdown: 60 * 1000, type: Math.floor(Math.random() * (boostNames.length))})
             while (isCollidingWithMap(boosts[boosts.length - 1])) {
                 boosts[boosts.length - 1].x = Math.random() * 3500
@@ -185,6 +198,7 @@ function tick(delta) {
             }
         }
         boostCountdown = 10 * 1000
+        console.log("boosts", boosts)
     }
     io.emit('players', players)
     io.emit('boosts', boosts)
