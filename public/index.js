@@ -59,6 +59,9 @@ invisibilityImage.src = "/invisibility.png";
 const jumpboostImage = new Image();
 jumpboostImage.src = "/jumpboost.png";
 
+const umbrellaImage = new Image();
+umbrellaImage.src = "/umbrella.png";
+
 const speedboostImage = new Image();
 speedboostImage.src = "/speedboost.png";
 
@@ -79,7 +82,7 @@ let map = [[]];
 let players = []
 let boosts = []
 
-const boostNames = ["invisibility", "jumpboost", "speedboost", "shield", "portal"]
+const boostNames = ["invisibility", "jumpboost", "umbrella", "speedboost", "shield", "portal"]
 
 const TILE_SIZE = 32;
 
@@ -193,6 +196,8 @@ function loop() {
       canvas.drawImage(invisibilityImage, boost.x - cameraX, boost.y - cameraY)
     } else if (boostNames[boost.type] === "jumpboost") {
       canvas.drawImage(jumpboostImage, boost.x - cameraX, boost.y - cameraY)
+    } else if (boostNames[boost.type] === "umbrella") {
+      canvas.drawImage(umbrellaImage, boost.x - cameraX, boost.y - cameraY)
     } else if (boostNames[boost.type] === "speedboost") {
       canvas.drawImage(speedboostImage, boost.x - cameraX, boost.y - cameraY)
     } else if (boostNames[boost.type] === "shield") {
