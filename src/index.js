@@ -17,13 +17,16 @@ const TICK_RATE = 30
 const TILE_SIZE = 32
 
 let players = []
+let pointers = []
 let map2D
 const inputsMap = {}
 const skins = ["red_santa", "pink_santa", "banana", "tomato", "viking", "ninja", "pink_dude", "white_dude", "blue_dude"]
+
 const boostNames = ["invisibility", "jumpboost", "speedboost", "shield", "portal"]
-const boostDurations = [30 * 1000, 30 * 1000, 30 * 1000, 15 * 1000, 0]
+const boostDurations = [30 * 1000, 30 * 1000, 30 * 1000, 10 * 1000, 0]
 let boosts = []
-let boostCountdown = 10 * 1000
+let boostCountdown = 5 * 1000
+const MAX_BOOSTS = 25
 
 const SPEED = {
     x: 5,
@@ -149,14 +152,42 @@ function tick(delta) {
             }
         }
 
-        if (player.tagged === "yes" || player.countdown > 0) {
+        if (player.tagged === "yes" && player.countdown > 0) {
             player.countdown = player.countdown - delta
+        }
+
+        if (player.tagged === "yes") {
+            if (player.pointerCountdown <= 0) {
+                const min = {disctance: undefined, x: undefined, y: undefined, player: undefined, inRange: false}
+                for (const otherPlayer of players) {
+                    if (player.id !== otherPlayer.id && otherPlayer.boost !== "invisibility") {
+                        if (!isColliding({x: otherPlayer.x, y: otherPlayer.y, w:32, h: 32}, {x: player.x - 300, y: player.y - 300, w: 600, h:600})) {
+                            if (Math.abs(otherPlayer.x - player.x) + Math.abs(otherPlayer.y - player.y) < min.disctance || min.disctance === undefined) {
+                                min.disctance = Math.abs(otherPlayer.x - player.x) + Math.abs(otherPlayer.y - player.y)
+                                min.x = otherPlayer.x - player.x + 8
+                                min.y = otherPlayer.y - player.y + 8
+                                min.player = otherPlayer
+                            }
+                        } else {
+                            min.inRange = true
+                        }
+                    }
+                }
+                if (min.x !== undefined && min.y !== undefined && !min.inRange) {
+                    const angle = Math.atan2(min.y, min.x)
+                    pointers.push({x: player.x + 16, y: player.y + 16, angle: angle, playerId: player.id, delete: true, target: {x: min.player.x, y: min.player.y}})
+                }
+                player.pointerCountdown = 2000
+            } else {
+                player.pointerCountdown -= delta
+            }
+            
         }
 
         if (inputs.tagged) {
             player.tagged = "yes"
             player.countdown = 10 * 1000
-            inputs.tagged = false
+            inputs.tagged = true
         }
 
         for (const boost of boosts) {
@@ -173,12 +204,13 @@ function tick(delta) {
                     player.boostCountdown = boostDurations[boost.type]
                 }
                 boosts = boosts.filter(filterBoost => filterBoost !== boost)
-                console.log("player boost", player.boost)
             } else if (boost.countdown <= 0) {
                 boosts = boosts.filter(filterBoost => filterBoost !== boost)
             }
-            if (boosts.length < 20) {
+            if (boosts.length >= MAX_BOOSTS - 5) {
                 boost.countdown -= delta
+            } else {
+                boost.countdown -= delta / 2
             }
         }
 
@@ -190,18 +222,33 @@ function tick(delta) {
     }
     boostCountdown -= delta
     if (boostCountdown <= 0) {
-        if (boosts.length < 20) {
-            boosts.push({x: Math.random() * 3500, y: Math.random() * 3500, countdown: 60 * 1000, type: Math.floor(Math.random() * (boostNames.length))})
+        if (boosts.length < MAX_BOOSTS) {
+            boosts.push({x: Math.random() * 3500, y: Math.random() * 3500, countdown: 120 * 1000, type: Math.floor(Math.random() * (boostNames.length))})
             while (isCollidingWithMap(boosts[boosts.length - 1])) {
                 boosts[boosts.length - 1].x = Math.random() * 3500
                 boosts[boosts.length - 1].y = Math.random() * 3500
             }
         }
         boostCountdown = 5 * 1000
-        console.log("boosts", boosts)
     }
+
+    for (const pointer of pointers) {
+        pointer.x += Math.cos(pointer.angle) * 11
+        pointer.y += Math.sin(pointer.angle) * 11
+
+        for (const player of players) {
+            if (player.id === pointer.playerId) continue
+            if (isColliding({x: pointer.target.x, y: pointer.target.y, w: 32, h: 32}, {x: pointer.x, y: pointer.y, w: 5, h: 5}) || pointer.x < -10 || pointer.y < -10 || pointer.x > 4000 || pointer.y > 4000) {
+                pointer.delete = false
+            }
+        }
+    }
+
+    pointers = pointers.filter(pointer => pointer.delete)
+
     io.emit('players', players)
     io.emit('boosts', boosts)
+    io.emit('pointers', pointers)
 }
 
 async function main() {
@@ -231,7 +278,8 @@ async function main() {
             countdown: 0,
             dashAvailable: true,
             boost: "none",
-            boostCountdown: 0
+            boostCountdown: 0,
+            pointerCountdown: 0
         })
 
         socket.emit('map', map2D)
