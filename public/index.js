@@ -78,7 +78,6 @@ const socket = io();
 let map = [[]];
 let players = []
 let boosts = []
-let pointers = []
 
 const boostNames = ["invisibility", "jumpboost", "speedboost", "shield", "portal"]
 
@@ -98,10 +97,6 @@ socket.on('players', (serverPlayers) => {
 
 socket.on('boosts', (serverBoosts) => {
   boosts = serverBoosts
-})
-
-socket.on('pointers', (serverPointers) => {
-  pointers = serverPointers
 })
 
 const inputs = {
@@ -258,14 +253,13 @@ function loop() {
           canvas.drawImage(right_red_santaImage, player.x - cameraX, player.y - cameraY)
         }
       }
+      for (const pointer of player.pointers) {
+        canvas.fillStyle = '#1273DE'
+        canvas.beginPath()
+        canvas.arc(pointer.x - cameraX, pointer.y - cameraY, 10, 0, 2 * Math.PI)
+        canvas.fill()
+      }
     }
-  }
-
-  for (const pointer of pointers) {
-    canvas.fillStyle = '#1273DE'
-    canvas.beginPath()
-    canvas.arc(pointer.x - cameraX, pointer.y - cameraY, 10, 0, 2 * Math.PI)
-    canvas.fill()
   }
 
   window.requestAnimationFrame(loop);
