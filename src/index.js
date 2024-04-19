@@ -21,8 +21,8 @@ let map2D
 const inputsMap = {}
 const skins = ["red_santa", "pink_santa", "banana", "tomato", "viking", "ninja", "pink_dude", "white_dude", "blue_dude"]
 
-const boostNames = ["invisibility", "jumpboost", "speedboost", "shield", "portal"]
-const boostDurations = [30 * 1000, 30 * 1000, 30 * 1000, 10 * 1000, 0]
+const boostNames = ["invisibility", "jumpboost", "umbrella", "speedboost", "shield", "portal"]
+const boostDurations = [30 * 1000, 30 * 1000, 30 * 1000, 30 * 1000, 15 * 1000, 0]
 let boosts = []
 let boostCountdown = 5 * 1000
 const MAX_BOOSTS = 25
@@ -104,7 +104,11 @@ function tick(delta) {
                 }
             }
 
-            player.speedY += 1
+            if (player.boost === "umbrella" && player.speedY >= 0) {
+                player.speedY += 0.2
+            } else {
+                player.speedY += 1
+            }
 
             if (inputs.left) {
                 if (player.boost === "speedboost") {
