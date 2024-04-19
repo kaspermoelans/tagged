@@ -17,7 +17,6 @@ const TICK_RATE = 30
 const TILE_SIZE = 32
 
 let players = []
-let pointers = []
 let map2D
 const inputsMap = {}
 const skins = ["red_santa", "pink_santa", "banana", "tomato", "viking", "ninja", "pink_dude", "white_dude", "blue_dude"]
@@ -175,7 +174,7 @@ function tick(delta) {
                 }
                 if (min.x !== undefined && min.y !== undefined && !min.inRange) {
                     const angle = Math.atan2(min.y, min.x)
-                    pointers.push({x: player.x + 16, y: player.y + 16, angle: angle, playerId: player.id, delete: true, target: {x: min.player.x, y: min.player.y}})
+                    player.pointers.push({x: player.x + 16, y: player.y + 16, angle: angle, playerId: player.id, delete: true, target: {x: min.player.x, y: min.player.y}})
                 }
                 player.pointerCountdown = 2000
             } else {
@@ -219,6 +218,20 @@ function tick(delta) {
         if (player.boostCountdown <= 0) {
             player.boost = "none"
         }
+
+        for (const pointer of player.pointers) {
+            pointer.x += Math.cos(pointer.angle) * 11
+            pointer.y += Math.sin(pointer.angle) * 11
+    
+            for (const player of players) {
+                if (player.id === pointer.playerId) continue
+                if (isColliding({x: pointer.target.x, y: pointer.target.y, w: 32, h: 32}, {x: pointer.x, y: pointer.y, w: 5, h: 5}) || pointer.x < -10 || pointer.y < -10 || pointer.x > 4000 || pointer.y > 4000) {
+                    pointer.delete = false
+                }
+            }
+        }
+    
+        player.pointers = player.pointers.filter(pointer => pointer.delete)
     }
     boostCountdown -= delta
     if (boostCountdown <= 0) {
@@ -232,23 +245,8 @@ function tick(delta) {
         boostCountdown = 5 * 1000
     }
 
-    for (const pointer of pointers) {
-        pointer.x += Math.cos(pointer.angle) * 11
-        pointer.y += Math.sin(pointer.angle) * 11
-
-        for (const player of players) {
-            if (player.id === pointer.playerId) continue
-            if (isColliding({x: pointer.target.x, y: pointer.target.y, w: 32, h: 32}, {x: pointer.x, y: pointer.y, w: 5, h: 5}) || pointer.x < -10 || pointer.y < -10 || pointer.x > 4000 || pointer.y > 4000) {
-                pointer.delete = false
-            }
-        }
-    }
-
-    pointers = pointers.filter(pointer => pointer.delete)
-
     io.emit('players', players)
     io.emit('boosts', boosts)
-    io.emit('pointers', pointers)
 }
 
 async function main() {
@@ -279,7 +277,8 @@ async function main() {
             dashAvailable: true,
             boost: "none",
             boostCountdown: 0,
-            pointerCountdown: 0
+            pointerCountdown: 0,
+            pointers: []
         })
 
         socket.emit('map', map2D)
