@@ -25,6 +25,8 @@ const dashImage = new Image();
 dashImage.src = "/dash.png";
 const skinImage = new Image();
 skinImage.src = "/skin.png";
+const taggedImage = new Image();
+taggedImage.src = "/tagged.png";
 
 // Skins
 const right_taggedImage = new Image();
@@ -202,26 +204,30 @@ window.addEventListener("touchstart", (e) => {
     const clientX = touch.clientX
     const clientY = touch.clientY
 
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height * 0.90, w: 192, h: 192})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height * 0.80, w: 192, h: 192})) {
       inputs['left'] = true
       socket.emit('inputs', inputs)
     }
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height * 0.90, w: 192, h: 192})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height * 0.80, w: 192, h: 192})) {
       inputs['right'] = true
       socket.emit('inputs', inputs)
     }
 
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 192, y: canvasEl.height * 0.90, w: 192, h: 192})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 192, y: canvasEl.height * 0.80, w: 192, h: 192})) {
       inputs['up'] = true
       socket.emit('inputs', inputs)
     }
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.90, w: 192, h: 192})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.80, w: 192, h: 192})) {
       inputs['dash'] = true
       socket.emit('inputs', inputs)
     }
 
     if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.05, w: 192, h: 192})) {
       inputs['switchSkin'] = true
+      socket.emit('inputs', inputs)
+    }
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 20, y: canvasEl.height * 0.05, w: 64, h: 64})) {
+      inputs['tagged'] = true
       socket.emit('inputs', inputs)
     }
   }
@@ -232,26 +238,30 @@ window.addEventListener("touchend", (e) => {
     const clientX = touch.clientX
     const clientY = touch.clientY
 
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height * 0.90, w: 192, h: 192})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height * 0.80, w: 192, h: 192})) {
       inputs['left'] = false
       socket.emit('inputs', inputs)
     }
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height * 0.90, w: 192, h: 192})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height * 0.80, w: 192, h: 192})) {
       inputs['right'] = false
       socket.emit('inputs', inputs)
     }
 
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 192, y: canvasEl.height * 0.90, w: 192, h: 192})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 192, y: canvasEl.height * 0.80, w: 192, h: 192})) {
       inputs['up'] = false
       socket.emit('inputs', inputs)
     }
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.90, w: 192, h: 192})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.80, w: 192, h: 192})) {
       inputs['dash'] = false
       socket.emit('inputs', inputs)
     }
 
     if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 64, y: canvasEl.height * 0.05, w: 64, h: 64})) {
       inputs['switchSkin'] = false
+      socket.emit('inputs', inputs)
+    }
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 20, y: canvasEl.height * 0.05, w: 64, h: 64})) {
+      inputs['tagged'] = false
       socket.emit('inputs', inputs)
     }
   }
@@ -375,11 +385,12 @@ function loop() {
 
   // const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   // if (isMobile) {
-    canvas.drawImage(leftImage, 20, canvasEl.height * 0.90)
-    canvas.drawImage(rightImage, 20 + 20 + 192, canvasEl.height * 0.90)
-    canvas.drawImage(upImage, canvasEl.width - 20 - 20 - 192 - 192, canvasEl.height * 0.90)
-    canvas.drawImage(dashImage, canvasEl.width - 20 - 192, canvasEl.height * 0.90)
+    canvas.drawImage(leftImage, 20, canvasEl.height * 0.80)
+    canvas.drawImage(rightImage, 20 + 20 + 192, canvasEl.height * 0.80)
+    canvas.drawImage(upImage, canvasEl.width - 20 - 20 - 192 - 192, canvasEl.height * 0.80)
+    canvas.drawImage(dashImage, canvasEl.width - 20 - 192, canvasEl.height * 0.80)
     canvas.drawImage(skinImage, canvasEl.width - 20 - 64, canvasEl.height * 0.05)
+    canvas.drawImage(taggedImage, 20, canvasEl.height * 0.05)
   // }
 
   console.log(mouseDown)
