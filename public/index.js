@@ -202,25 +202,25 @@ window.addEventListener("touchstart", (e) => {
     const clientX = touch.clientX
     const clientY = touch.clientY
 
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height * 0.75, w: 128, h: 128})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height * 0.70, w: 192, h: 192})) {
       inputs['left'] = true
       socket.emit('inputs', inputs)
     }
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height * 0.75, w: 128, h: 128})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height * 0.70, w: 192, h: 192})) {
       inputs['right'] = true
       socket.emit('inputs', inputs)
     }
 
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 128, y: canvasEl.height * 0.75, w: 128, h: 128})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 192, y: canvasEl.height * 0.70, w: 192, h: 192})) {
       inputs['up'] = true
       socket.emit('inputs', inputs)
     }
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 128, y: canvasEl.height * 0.75, w: 128, h: 128})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.70, w: 192, h: 192})) {
       inputs['dash'] = true
       socket.emit('inputs', inputs)
     }
 
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 128, y: canvasEl.height * 0.05, w: 128, h: 128})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.05, w: 192, h: 192})) {
       inputs['switchSkin'] = true
       socket.emit('inputs', inputs)
     }
@@ -232,25 +232,25 @@ window.addEventListener("touchend", (e) => {
     const clientX = touch.clientX
     const clientY = touch.clientY
 
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height * 0.75, w: 128, h: 128})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height * 0.725, w: 192, h: 192})) {
       inputs['left'] = false
       socket.emit('inputs', inputs)
     }
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height * 0.75, w: 128, h: 128})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height * 0.70, w: 192, h: 192})) {
       inputs['right'] = false
       socket.emit('inputs', inputs)
     }
 
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 128, y: canvasEl.height * 0.75, w: 128, h: 128})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 192, y: canvasEl.height * 0.70, w: 192, h: 192})) {
       inputs['up'] = false
       socket.emit('inputs', inputs)
     }
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 128, y: canvasEl.height * 0.75, w: 128, h: 128})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.70, w: 192, h: 192})) {
       inputs['dash'] = false
       socket.emit('inputs', inputs)
     }
 
-    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 128, y: canvasEl.height * 0.05, w: 128, h: 128})) {
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 64, y: canvasEl.height * 0.05, w: 64, h: 64})) {
       inputs['switchSkin'] = false
       socket.emit('inputs', inputs)
     }
@@ -375,11 +375,11 @@ function loop() {
 
   // const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   // if (isMobile) {
-    canvas.drawImage(leftImage, 10, canvasEl.height * 0.75)
-    canvas.drawImage(rightImage, 168, canvasEl.height * 0.75)
-    canvas.drawImage(upImage, canvasEl.width - 168 - 128, canvasEl.height * 0.75)
-    canvas.drawImage(dashImage, canvasEl.width - 10 - 128, canvasEl.height * 0.75)
-    canvas.drawImage(skinImage, canvasEl.width - 10 - 128, canvasEl.height * 0.05)
+    canvas.drawImage(leftImage, 20, canvasEl.height * 0.70)
+    canvas.drawImage(rightImage, 20 + 20 + 192, canvasEl.height * 0.70)
+    canvas.drawImage(upImage, canvasEl.width - 20 - 20 - 192 - 192, canvasEl.height * 0.70)
+    canvas.drawImage(dashImage, canvasEl.width - 20 - 192, canvasEl.height * 0.70)
+    canvas.drawImage(skinImage, canvasEl.width - 20 - 64, canvasEl.height * 0.05)
   // }
 
   console.log(mouseDown)
