@@ -1,6 +1,31 @@
 const mapImage = new Image();
 mapImage.src = "/tiles.png";
 
+document.oncontextmenu = document.body.oncontextmenu = function() {return false;}
+document.firstElementChild.style.zoom = "reset";
+
+document.addEventListener(
+  'wheel',
+  function touchHandler(e) {
+    if (e.ctrlKey) {
+      e.preventDefault();
+    }
+  },
+  { passive: false }
+);
+
+// Load mobile buttons
+const leftImage = new Image();
+leftImage.src = "/left.png";
+const rightImage = new Image();
+rightImage.src = "/right.png";
+const upImage = new Image();
+upImage.src = "/up.png";
+const dashImage = new Image();
+dashImage.src = "/dash.png";
+const skinImage = new Image();
+skinImage.src = "/skin.png";
+
 // Skins
 const right_taggedImage = new Image();
 right_taggedImage.src = "/right_tagged.png";
@@ -86,6 +111,14 @@ const boostNames = ["invisibility", "jumpboost", "umbrella", "speedboost", "shie
 
 const TILE_SIZE = 32;
 
+var mouseDown = 0;
+document.body.onmousedown = function() { 
+  ++mouseDown;
+}
+document.body.onmouseup = function() {
+  --mouseDown;
+}
+
 socket.on("connect", () => {
   console.log("connected");
 });
@@ -153,6 +186,79 @@ window.addEventListener('keyup', (e) => {
       inputs['tagged'] = false
     }
     socket.emit('inputs', inputs)
+})
+
+function isColliding(rect1, rect2) {
+  return (
+      rect1.x < rect2.x + rect2.w &&
+      rect1.x + rect1.w > rect2.x &&
+      rect1.y < rect2.y + rect2.h &&
+      rect1.h + rect1.y > rect2.y
+  );
+}
+
+window.addEventListener("touchstart", (e) => {
+  for (const touch of e.changedTouches) {
+    const clientX = touch.clientX
+    const clientY = touch.clientY
+
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height * 0.75, w: 128, h: 128})) {
+      inputs['left'] = true
+      socket.emit('inputs', inputs)
+    }
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height * 0.75, w: 128, h: 128})) {
+      inputs['right'] = true
+      socket.emit('inputs', inputs)
+    }
+
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 128, y: canvasEl.height * 0.75, w: 128, h: 128})) {
+      inputs['up'] = true
+      socket.emit('inputs', inputs)
+    }
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 128, y: canvasEl.height * 0.75, w: 128, h: 128})) {
+      inputs['dash'] = true
+      socket.emit('inputs', inputs)
+    }
+
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 128, y: canvasEl.height * 0.05, w: 128, h: 128})) {
+      inputs['switchSkin'] = true
+      socket.emit('inputs', inputs)
+    }
+  }
+});
+
+window.addEventListener("touchend", (e) => {
+  for (const touch of e.changedTouches) {
+    const clientX = touch.clientX
+    const clientY = touch.clientY
+
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height * 0.75, w: 128, h: 128})) {
+      inputs['left'] = false
+      socket.emit('inputs', inputs)
+    }
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height * 0.75, w: 128, h: 128})) {
+      inputs['right'] = false
+      socket.emit('inputs', inputs)
+    }
+
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 128, y: canvasEl.height * 0.75, w: 128, h: 128})) {
+      inputs['up'] = false
+      socket.emit('inputs', inputs)
+    }
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 128, y: canvasEl.height * 0.75, w: 128, h: 128})) {
+      inputs['dash'] = false
+      socket.emit('inputs', inputs)
+    }
+
+    if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 128, y: canvasEl.height * 0.05, w: 128, h: 128})) {
+      inputs['switchSkin'] = false
+      socket.emit('inputs', inputs)
+    }
+  }
+})
+
+window.addEventListener('click', (e) => {
+  
 })
 
 function loop() {
@@ -266,6 +372,17 @@ function loop() {
       }
     }
   }
+
+  // const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  // if (isMobile) {
+    canvas.drawImage(leftImage, 10, canvasEl.height * 0.75)
+    canvas.drawImage(rightImage, 168, canvasEl.height * 0.75)
+    canvas.drawImage(upImage, canvasEl.width - 168 - 128, canvasEl.height * 0.75)
+    canvas.drawImage(dashImage, canvasEl.width - 10 - 128, canvasEl.height * 0.75)
+    canvas.drawImage(skinImage, canvasEl.width - 10 - 128, canvasEl.height * 0.05)
+  // }
+
+  console.log(mouseDown)
 
   window.requestAnimationFrame(loop);
 }
