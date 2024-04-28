@@ -1,403 +1,312 @@
-const mapImage = new Image();
-mapImage.src = "/tiles.png";
+const express = require('express')
+const { createServer } = require("http");
+const { resolve } = require('path');
+const { Server } = require("socket.io");
 
-document.oncontextmenu = document.body.oncontextmenu = function() {return false;}
-document.firstElementChild.style.zoom = "reset";
+const app = express()
+const httpServer = createServer(app);
+const PORT = process.env.PORT || 5000;
 
-document.addEventListener(
-  'wheel',
-  function touchHandler(e) {
-    if (e.ctrlKey) {
-      e.preventDefault();
-    }
-  },
-  { passive: false }
-);
+const io = new Server(httpServer);
 
-// Load mobile buttons
-const leftImage = new Image();
-leftImage.src = "/left.png";
-const rightImage = new Image();
-rightImage.src = "/right.png";
-const upImage = new Image();
-upImage.src = "/up.png";
-const dashImage = new Image();
-dashImage.src = "/dash.png";
-const skinImage = new Image();
-skinImage.src = "/skin.png";
-const taggedImage = new Image();
-taggedImage.src = "/tagged.png";
+const loadMap = require('./mapLoader');
+const { disconnect } = require('process');
 
-// Skins
-const right_taggedImage = new Image();
-right_taggedImage.src = "/right_tagged.png";
-const left_taggedImage = new Image();
-left_taggedImage.src = "/left_tagged.png";
+const TICK_RATE = 30
 
-const right_red_santaImage = new Image();
-right_red_santaImage.src = "/right_red_santa.png";
-const left_red_santaImage = new Image();
-left_red_santaImage.src = "/left_red_santa.png";
+const TILE_SIZE = 32
 
-const right_pink_santaImage = new Image();
-right_pink_santaImage.src = "/right_pink_santa.png";
-const left_pink_santaImage = new Image();
-left_pink_santaImage.src = "/left_pink_santa.png";
-
-const right_bananaImage = new Image();
-right_bananaImage.src = "/right_banana.png";
-const left_bananaImage = new Image();
-left_bananaImage.src = "/left_banana.png";
-
-const right_tomatoImage = new Image();
-right_tomatoImage.src = "/right_tomato.png";
-const left_tomatoImage = new Image();
-left_tomatoImage.src = "/left_tomato.png";
-
-const right_vikingImage = new Image();
-right_vikingImage.src = "/right_viking.png";
-const left_vikingImage = new Image();
-left_vikingImage.src = "/left_viking.png";
-
-const right_ninjaImage = new Image();
-right_ninjaImage.src = "/right_ninja.png";
-const left_ninjaImage = new Image();
-left_ninjaImage.src = "/left_ninja.png";
-
-const right_pink_dudeImage = new Image();
-right_pink_dudeImage.src = "/right_pink_dude.png";
-const left_pink_dudeImage = new Image();
-left_pink_dudeImage.src = "/left_pink_dude.png";
-
-const right_white_dudeImage = new Image();
-right_white_dudeImage.src = "/right_white_dude.png";
-const left_white_dudeImage = new Image();
-left_white_dudeImage.src = "/left_white_dude.png";
-
-const right_blue_dudeImage = new Image();
-right_blue_dudeImage.src = "/right_blue_dude.png";
-const left_blue_dudeImage = new Image();
-left_blue_dudeImage.src = "/left_blue_dude.png";
-
-// Boosts
-const invisibilityImage = new Image();
-invisibilityImage.src = "/invisibility.png";
-
-const jumpboostImage = new Image();
-jumpboostImage.src = "/jumpboost.png";
-
-const umbrellaImage = new Image();
-umbrellaImage.src = "/umbrella.png";
-
-const speedboostImage = new Image();
-speedboostImage.src = "/speedboost.png";
-
-const shieldImage = new Image();
-shieldImage.src = "/shield.png";
-
-const portalImage = new Image();
-portalImage.src = "/portal.png";
-
-const canvasEl = document.getElementById("canvas");
-canvasEl.width = window.innerWidth;
-canvasEl.height = window.innerHeight;
-const canvas = canvasEl.getContext("2d");
-
-const socket = io(`ws://localhost:5000`);
-
-let map = [[]];
 let players = []
-let boosts = []
+let map2D
+const inputsMap = {}
+const skins = ["red_santa", "pink_santa", "banana", "tomato", "viking", "ninja", "pink_dude", "white_dude", "blue_dude"]
 
 const boostNames = ["invisibility", "jumpboost", "umbrella", "speedboost", "shield", "portal"]
+const boostDurations = [30 * 1000, 30 * 1000, 30 * 1000, 30 * 1000, 15 * 1000, 0]
+let boosts = []
+let boostCountdown = 5 * 1000
+const MAX_BOOSTS = 25
 
-const TILE_SIZE = 32;
-
-var mouseDown = 0;
-document.body.onmousedown = function() { 
-  ++mouseDown;
+const SPEED = {
+    x: 5,
+    y: 5,
+    jump: -12
 }
-document.body.onmouseup = function() {
-  --mouseDown;
-}
-
-socket.on("connect", () => {
-  console.log("connected");
-});
-
-socket.on("map", (loadedMap) => {
-  map = loadedMap
-});
-
-socket.on('players', (serverPlayers) => {
-    players = serverPlayers
-})
-
-socket.on('boosts', (serverBoosts) => {
-  boosts = serverBoosts
-})
-
-const inputs = {
-    up: false,
-    dash: false,
-    left: false,
-    right: false,
-    switchSkin: false,
-    tagged: false
-}
-
-window.addEventListener('keydown', (e) => {
-    if (e.key === 'z' || e.key === 'ArrowUp' || e.key === ' ') {
-        inputs['up'] = true
-    }
-    if (e.key === 's' || e.key === 'ArrowDown') {
-        inputs['dash'] = true
-    }
-    if (e.key === 'q' || e.key === 'ArrowLeft') {
-        inputs['left'] = true
-    }
-    if (e.key === 'd' || e.key === 'ArrowRight') {
-        inputs['right'] = true
-    }
-    if (e.key === 'e') {
-      inputs['switchSkin'] = true
-    }
-    if (e.key === 't') {
-      inputs['tagged'] = true
-    }
-    socket.emit('inputs', inputs)
-})
-
-window.addEventListener('keyup', (e) => {
-    if (e.key === 'z' || e.key === 'ArrowUp' || e.key === ' ') {
-        inputs['up'] = false
-    }
-    if (e.key === 's' || e.key === 'ArrowDown') {
-        inputs['dash'] = false
-    }
-    if (e.key === 'q' || e.key === 'ArrowLeft') {
-        inputs['left'] = false
-    }
-    if (e.key === 'd' || e.key === 'ArrowRight') {
-        inputs['right'] = false
-    }
-    if (e.key === 'e') {
-      inputs['switchSkin'] = false
-    }
-    if (e.key === 't') {
-      inputs['tagged'] = false
-    }
-    socket.emit('inputs', inputs)
-})
 
 function isColliding(rect1, rect2) {
-  return (
-      rect1.x < rect2.x + rect2.w &&
-      rect1.x + rect1.w > rect2.x &&
-      rect1.y < rect2.y + rect2.h &&
-      rect1.h + rect1.y > rect2.y
-  );
+    return (
+        rect1.x < rect2.x + rect2.w &&
+        rect1.x + rect1.w > rect2.x &&
+        rect1.y < rect2.y + rect2.h &&
+        rect1.h + rect1.y > rect2.y
+    );
+}
+  
+function isCollidingWithMap(player) {
+for (let row = 0; row < map2D.length; row++) {
+    for (let col = 0; col < map2D[0].length; col++) {
+    const tile = map2D[row][col];
+
+    if (
+        tile &&
+        isColliding(
+        {
+            x: player.x,
+            y: player.y,
+            w: 32,
+            h: 32,
+        },
+        {
+            x: col * TILE_SIZE,
+            y: row * TILE_SIZE,
+            w: TILE_SIZE,
+            h: TILE_SIZE,
+        }
+        )
+    ) {
+        return true;
+    }
+    }
+}
+return false;
 }
 
-window.addEventListener("touchstart", (e) => {
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if (isMobile) {
-    for (const touch of e.changedTouches) {
-      const clientX = touch.clientX
-      const clientY = touch.clientY
+function tick(delta) {
+    for (let player of players) {
+        const inputs = inputsMap[player.id]
+        const previousY = player.y
+        const previousX = player.x
 
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height * 0.80, w: 168, h: 144})) {
-        inputs['left'] = true
-        socket.emit('inputs', inputs)
-      }
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height * 0.80, w: 168, h: 144})) {
-        inputs['right'] = true
-        socket.emit('inputs', inputs)
-      }
+        if (player.tagged === "no" || player.countdown <= 0) {
+            player.y += player.speedY
 
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 192, y: canvasEl.height * 0.80, w: 168, h: 144})) {
-        inputs['up'] = true
-        socket.emit('inputs', inputs)
-      }
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.80, w: 168, h: 144})) {
-        inputs['dash'] = true
-        socket.emit('inputs', inputs)
-      }
+            if (isCollidingWithMap(player)) {
+                player.dashAvailable = true
+                player.y = previousY
+                if (inputs.up) {
+                    if (player.boost === "jumpboost") {
+                        player.speedY = player.speedJump * 1.5
+                    } else {
+                        player.speedY = player.speedJump
+                    }
+                }
+                if (player.speedY > 5) {
+                    player.speedY = 5
+                }
+            } else if (inputs.dash && player.dashAvailable) {
+                if (inputs.left) {
+                    player.x -= player.speedX * 20
+                    player.dashAvailable = false
+                }
+                if (inputs.right) {
+                    player.x += player.speedX * 20
+                    player.dashAvailable = false
+                }
+            }
 
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.05, w: 168, h: 144})) {
-        inputs['switchSkin'] = true
-        socket.emit('inputs', inputs)
-      }
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 20, y: canvasEl.height * 0.05, w: 64, h: 64})) {
-        inputs['tagged'] = true
-        socket.emit('inputs', inputs)
-      }
-    }
-  }
-});
+            if (player.boost === "umbrella" && player.speedY >= 0) {
+                player.speedY += 0.2
+            } else {
+                player.speedY += 1
+            }
 
-window.addEventListener("touchend", (e) => {
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if (isMobile) {
-    for (const touch of e.changedTouches) {
-      const clientX = touch.clientX
-      const clientY = touch.clientY
+            if (inputs.left) {
+                if (player.boost === "speedboost") {
+                    player.x -= player.speedX * 1.5
+                } else {
+                    player.x -= player.speedX
+                }
+                player.direction = "left"
+            } else if (inputs.right) {
+                if (player.boost === "speedboost") {
+                    player.x += player.speedX * 1.5
+                } else {
+                    player.x += player.speedX
+                }
+                player.direction = "right"
+            }
 
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height * 0.80, w: 168, h: 144})) {
-        inputs['left'] = false
-        socket.emit('inputs', inputs)
-      }
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height * 0.80, w: 168, h: 144})) {
-        inputs['right'] = false
-        socket.emit('inputs', inputs)
-      }
+            if (isCollidingWithMap(player)) {
+                player.x = previousX
+            }
 
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 192, y: canvasEl.height * 0.80, w: 168, h: 144})) {
-        inputs['up'] = false
-        socket.emit('inputs', inputs)
-      }
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.80, w: 168, h: 144})) {
-        inputs['dash'] = false
-        socket.emit('inputs', inputs)
-      }
-
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 64, y: canvasEl.height * 0.05, w: 64, h: 64})) {
-        inputs['switchSkin'] = false
-        socket.emit('inputs', inputs)
-      }
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 20, y: canvasEl.height * 0.05, w: 64, h: 64})) {
-        inputs['tagged'] = false
-        socket.emit('inputs', inputs)
-      }
-    }
-  }
-})
-
-function loop() {
-  canvas.clearRect(0, 0, canvasEl.width, canvasEl.height);
-  canvas.fillStyle = 'lightblue'
-  canvas.fillRect(0, 0, canvasEl.width, canvasEl.height)
-
-  const myPlayer = players.find((player) => player.id === socket.id)
-
-  let cameraX = 0
-  let cameraY = 0
-
-  if (myPlayer) {
-    cameraX = parseInt(myPlayer.x - canvasEl.width / 2)
-    cameraY = parseInt(myPlayer.y - canvasEl.height / 2)
-  }
-
-  const TILES_IN_ROW = 8;
-
-  for (let row = 0; row < map.length; row++) {
-    for (let col = 0; col < map[0].length; col++) {
-      let { id } = map[row][col] ?? {id: undefined}
-      const imageRow = parseInt(id / TILES_IN_ROW);
-      const imageCol = id % TILES_IN_ROW;
-      canvas.drawImage(
-        mapImage,
-        imageCol * TILE_SIZE,
-        imageRow * TILE_SIZE,
-        TILE_SIZE,
-        TILE_SIZE,
-        col * TILE_SIZE - cameraX,
-        row * TILE_SIZE - cameraY,
-        TILE_SIZE,
-        TILE_SIZE
-      );
-    }
-  }
-
-  for (const boost of boosts) {
-    if (boostNames[boost.type] === "invisibility") {
-      canvas.drawImage(invisibilityImage, boost.x - cameraX, boost.y - cameraY)
-    } else if (boostNames[boost.type] === "jumpboost") {
-      canvas.drawImage(jumpboostImage, boost.x - cameraX, boost.y - cameraY)
-    } else if (boostNames[boost.type] === "umbrella") {
-      canvas.drawImage(umbrellaImage, boost.x - cameraX, boost.y - cameraY)
-    } else if (boostNames[boost.type] === "speedboost") {
-      canvas.drawImage(speedboostImage, boost.x - cameraX, boost.y - cameraY)
-    } else if (boostNames[boost.type] === "shield") {
-      canvas.drawImage(shieldImage, boost.x - cameraX, boost.y - cameraY)
-    } else if (boostNames[boost.type] === "portal") {
-      canvas.drawImage(portalImage, boost.x - cameraX, boost.y - cameraY)
-    }
-  }
-
-  for (const player of players) {
-    if (player.boost !== "invisibility" || player.id === myPlayer.id) {
-      if (player.direction === "left") {
-        if (player.tagged === "yes") {
-          canvas.drawImage(left_taggedImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "red_santa") {
-          canvas.drawImage(left_red_santaImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "pink_santa") {
-          canvas.drawImage(left_pink_santaImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "banana") {
-          canvas.drawImage(left_bananaImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "tomato") {
-          canvas.drawImage(left_tomatoImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "viking") {
-          canvas.drawImage(left_vikingImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "ninja") {
-          canvas.drawImage(left_ninjaImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "pink_dude") {
-          canvas.drawImage(left_pink_dudeImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "white_dude") {
-          canvas.drawImage(left_white_dudeImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "blue_dude") {
-          canvas.drawImage(left_blue_dudeImage, player.x - cameraX, player.y - cameraY)
-        } else {
-          canvas.drawImage(left_red_santaImage, player.x - cameraX, player.y - cameraY)
+            if (player.y > 4000) {
+                player.x = 1910
+                player.y = 2200
+            }
         }
-      } else if (player.direction === "right") {
-        if (player.tagged === "yes") {
-          canvas.drawImage(right_taggedImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "red_santa") {
-          canvas.drawImage(right_red_santaImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "pink_santa") {
-          canvas.drawImage(right_pink_santaImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "banana") {
-          canvas.drawImage(right_bananaImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "tomato") {
-          canvas.drawImage(right_tomatoImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "viking") {
-          canvas.drawImage(right_vikingImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "ninja") {
-          canvas.drawImage(right_ninjaImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "pink_dude") {
-          canvas.drawImage(right_pink_dudeImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "white_dude") {
-          canvas.drawImage(right_white_dudeImage, player.x - cameraX, player.y - cameraY)
-        } else if (player.skin === "blue_dude") {
-          canvas.drawImage(right_blue_dudeImage, player.x - cameraX, player.y - cameraY)
-        } else {
-          canvas.drawImage(right_red_santaImage, player.x - cameraX, player.y - cameraY)
+
+        if (inputs.switchSkin) {
+            player.skinNumber += 1
+            if (player.skinNumber > skins.length) {
+                player.skinNumber = 0
+            }
+            player.skin = skins[player.skinNumber]
+            inputsMap[player.id].switchSkin = false
         }
-      }
-      for (const pointer of player.pointers) {
-        canvas.fillStyle = '#1273DE'
-        canvas.beginPath()
-        canvas.arc(pointer.x - cameraX, pointer.y - cameraY, 10, 0, 2 * Math.PI)
-        canvas.fill()
-      }
+
+        if (player.tagged === "no" && player.boost !== "shield") {
+            for (let otherPlayer of players) {
+                if (otherPlayer.tagged === "yes" && isColliding({x: player.x, y: player.y, w: 32, h: 32}, {x: otherPlayer.x, y: otherPlayer.y, w: 32, h: 32}) && otherPlayer !== player && otherPlayer.countdown <= 0) {
+                    player.tagged = "yes"
+                    otherPlayer.tagged = "no"
+                    player.countdown = 10 * 1000
+                }
+            }
+        }
+
+        if (player.tagged === "yes" && player.countdown > 0) {
+            player.countdown = player.countdown - delta
+        }
+
+        if (player.tagged === "yes") {
+            if (player.pointerCountdown <= 0) {
+                const min = {disctance: undefined, x: undefined, y: undefined, player: undefined, inRange: false}
+                for (const otherPlayer of players) {
+                    if (player.id !== otherPlayer.id && otherPlayer.boost !== "invisibility") {
+                        if (!isColliding({x: otherPlayer.x, y: otherPlayer.y, w:32, h: 32}, {x: player.x - 300, y: player.y - 300, w: 600, h:600})) {
+                            if (Math.abs(otherPlayer.x - player.x) + Math.abs(otherPlayer.y - player.y) < min.disctance || min.disctance === undefined) {
+                                min.disctance = Math.abs(otherPlayer.x - player.x) + Math.abs(otherPlayer.y - player.y)
+                                min.x = otherPlayer.x - player.x + 8
+                                min.y = otherPlayer.y - player.y + 8
+                                min.player = otherPlayer
+                            }
+                        } else {
+                            min.inRange = true
+                        }
+                    }
+                }
+                if (min.x !== undefined && min.y !== undefined && !min.inRange) {
+                    const angle = Math.atan2(min.y, min.x)
+                    player.pointers.push({x: player.x + 16, y: player.y + 16, angle: angle, playerId: player.id, delete: true, target: {x: min.player.x, y: min.player.y}})
+                }
+                player.pointerCountdown = 2000
+            } else {
+                player.pointerCountdown -= delta
+            }
+            
+        }
+
+        if (inputs.tagged) {
+            player.tagged = "yes"
+            player.countdown = 10 * 1000
+            inputs.tagged = true
+        }
+
+        for (const boost of boosts) {
+            if (isColliding({x: player.x, y: player.y, w: 32, h:32}, {x: boost.x, y: boost.y, w: 32, h: 32})) {
+                if (boostNames[boost.type] === "portal") {
+                    player.x = Math.random() * 3500
+                    player.y = Math.random() * 3500
+                    while (isCollidingWithMap(player)) {
+                        player.x = Math.random() * 3500
+                        player.y = Math.random() * 3500
+                    }
+                } else {
+                    player.boost = boostNames[boost.type]
+                    player.boostCountdown = boostDurations[boost.type]
+                }
+                boosts = boosts.filter(filterBoost => filterBoost !== boost)
+            } else if (boost.countdown <= 0) {
+                boosts = boosts.filter(filterBoost => filterBoost !== boost)
+            }
+            if (boosts.length >= MAX_BOOSTS - 5) {
+                boost.countdown -= delta
+            } else {
+                boost.countdown -= delta / 2
+            }
+        }
+
+        player.boostCountdown -= delta
+
+        if (player.boostCountdown <= 0) {
+            player.boost = "none"
+        }
+
+        for (const pointer of player.pointers) {
+            pointer.x += Math.cos(pointer.angle) * 11
+            pointer.y += Math.sin(pointer.angle) * 11
+    
+            for (const player of players) {
+                if (player.id === pointer.playerId) continue
+                if (isColliding({x: pointer.target.x, y: pointer.target.y, w: 32, h: 32}, {x: pointer.x, y: pointer.y, w: 5, h: 5}) || pointer.x < -10 || pointer.y < -10 || pointer.x > 4000 || pointer.y > 4000) {
+                    pointer.delete = false
+                }
+            }
+        }
+    
+        player.pointers = player.pointers.filter(pointer => pointer.delete)
     }
-  }
+    boostCountdown -= delta
+    if (boostCountdown <= 0) {
+        if (boosts.length < MAX_BOOSTS) {
+            boosts.push({x: Math.random() * 3500, y: Math.random() * 3500, countdown: 120 * 1000, type: Math.floor(Math.random() * (boostNames.length))})
+            while (isCollidingWithMap(boosts[boosts.length - 1])) {
+                boosts[boosts.length - 1].x = Math.random() * 3500
+                boosts[boosts.length - 1].y = Math.random() * 3500
+            }
+        }
+        boostCountdown = 5 * 1000
+    }
 
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if (isMobile) {
-    canvas.drawImage(leftImage, 20, canvasEl.height * 0.80)
-    canvas.drawImage(rightImage, 20 + 20 + 192, canvasEl.height * 0.80)
-    canvas.drawImage(upImage, canvasEl.width - 20 - 20 - 192 - 192, canvasEl.height * 0.80)
-    canvas.drawImage(dashImage, canvasEl.width - 20 - 192, canvasEl.height * 0.80)
-    canvas.drawImage(skinImage, canvasEl.width - 20 - 64, canvasEl.height * 0.05)
-    canvas.drawImage(taggedImage, 20, canvasEl.height * 0.05)
-  }
-
-  console.log(mouseDown)
-
-  window.requestAnimationFrame(loop);
+    io.emit('players', players)
+    io.emit('boosts', boosts)
 }
 
-window.requestAnimationFrame(loop);
+async function main() {
+    map2D = await loadMap()
+
+    io.on('connect', (socket) => {
+        inputsMap[socket.id] = {
+            up: false,
+            down: false,
+            left: false,
+            right: false,
+            switchSkin: false,
+            tagged: false
+        }
+
+        players.push({
+            id: socket.id,
+            x: 1910,
+            y: 2200,
+            speedX: 5,
+            speedY: 5,
+            speedJump: -12,
+            skin: "red-santa",
+            skinNumber: 0,
+            direction: "right",
+            tagged: "no",
+            countdown: 0,
+            dashAvailable: true,
+            boost: "none",
+            boostCountdown: 0,
+            pointerCountdown: 0,
+            pointers: []
+        })
+
+        socket.emit('map', map2D)
+
+        socket.on('inputs', (inputs) => {
+            inputsMap[socket.id] = inputs
+        })
+
+        socket.on('disconnect', () => {
+            players = players.filter(player => player.id !== socket.id)
+        })
+    })
+    
+    app.use(express.static("public"))
+    
+    httpServer.listen(PORT);
+
+    let lastUpdate = Date.now()
+    setInterval(() => {
+        const now = Date.now()
+        const delta = now - lastUpdate
+        tick(delta)
+        lastUpdate = now
+    }, 1000 / TICK_RATE)
+}
+
+main()
