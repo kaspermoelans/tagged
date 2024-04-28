@@ -206,25 +206,25 @@ window.addEventListener("touchstart", (e) => {
       const clientX = touch.clientX
       const clientY = touch.clientY
 
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height * 0.80, w: 192, h: 192})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height * 0.80, w: 168, h: 144})) {
         inputs['left'] = true
         socket.emit('inputs', inputs)
       }
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height * 0.80, w: 192, h: 192})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height * 0.80, w: 168, h: 144})) {
         inputs['right'] = true
         socket.emit('inputs', inputs)
       }
 
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 192, y: canvasEl.height * 0.80, w: 192, h: 192})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 192, y: canvasEl.height * 0.80, w: 168, h: 144})) {
         inputs['up'] = true
         socket.emit('inputs', inputs)
       }
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.80, w: 192, h: 192})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.80, w: 168, h: 144})) {
         inputs['dash'] = true
         socket.emit('inputs', inputs)
       }
 
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.05, w: 192, h: 192})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.05, w: 168, h: 144})) {
         inputs['switchSkin'] = true
         socket.emit('inputs', inputs)
       }
@@ -243,20 +243,20 @@ window.addEventListener("touchend", (e) => {
       const clientX = touch.clientX
       const clientY = touch.clientY
 
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height * 0.80, w: 192, h: 192})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height * 0.80, w: 168, h: 144})) {
         inputs['left'] = false
         socket.emit('inputs', inputs)
       }
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height * 0.80, w: 192, h: 192})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height * 0.80, w: 168, h: 144})) {
         inputs['right'] = false
         socket.emit('inputs', inputs)
       }
 
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 192, y: canvasEl.height * 0.80, w: 192, h: 192})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 192, y: canvasEl.height * 0.80, w: 168, h: 144})) {
         inputs['up'] = false
         socket.emit('inputs', inputs)
       }
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.80, w: 192, h: 192})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height * 0.80, w: 168, h: 144})) {
         inputs['dash'] = false
         socket.emit('inputs', inputs)
       }
@@ -271,10 +271,6 @@ window.addEventListener("touchend", (e) => {
       }
     }
   }
-})
-
-window.addEventListener('click', (e) => {
-  
 })
 
 function loop() {
