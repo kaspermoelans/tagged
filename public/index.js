@@ -103,7 +103,7 @@ canvasEl.width = window.innerWidth;
 canvasEl.height = window.innerHeight;
 const canvas = canvasEl.getContext("2d");
 
-const socket = io();
+const socket = io(`ws://localhost:5000`);
 
 let map = [[]];
 let players = []
@@ -206,20 +206,20 @@ window.addEventListener("touchstart", (e) => {
       const clientX = touch.clientX
       const clientY = touch.clientY
 
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height - 200, w: 168, h: 144})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height - 150, w: 168, h: 144})) {
         inputs['left'] = true
         socket.emit('inputs', inputs)
       }
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height - 200, w: 168, h: 144})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height - 150, w: 168, h: 144})) {
         inputs['right'] = true
         socket.emit('inputs', inputs)
       }
 
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 192, y: canvasEl.height - 200, w: 168, h: 144})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 192, y: canvasEl.height - 150, w: 168, h: 144})) {
         inputs['up'] = true
         socket.emit('inputs', inputs)
       }
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height - 200, w: 168, h: 144})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height - 150, w: 168, h: 144})) {
         inputs['dash'] = true
         socket.emit('inputs', inputs)
       }
@@ -243,20 +243,20 @@ window.addEventListener("touchend", (e) => {
       const clientX = touch.clientX
       const clientY = touch.clientY
 
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height - 200, w: 168, h: 144})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 10, y: canvasEl.height - 150, w: 168, h: 144})) {
         inputs['left'] = false
         socket.emit('inputs', inputs)
       }
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height - 200, w: 168, h: 144})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: 168, y: canvasEl.height - 150, w: 168, h: 144})) {
         inputs['right'] = false
         socket.emit('inputs', inputs)
       }
 
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 192, y: canvasEl.height - 200, w: 168, h: 144})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 192, y: canvasEl.height - 150, w: 168, h: 144})) {
         inputs['up'] = false
         socket.emit('inputs', inputs)
       }
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height - 200, w: 168, h: 144})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 192, y: canvasEl.height - 150, w: 168, h: 144})) {
         inputs['dash'] = false
         socket.emit('inputs', inputs)
       }
@@ -387,10 +387,10 @@ function loop() {
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   if (isMobile) {
-    canvas.drawImage(leftImage, 20, canvasEl.height - 200)
-    canvas.drawImage(rightImage, 20 + 20 + 192, canvasEl.height - 200)
-    canvas.drawImage(upImage, canvasEl.width - 20 - 20 - 192 - 192, canvasEl.height - 200)
-    canvas.drawImage(dashImage, canvasEl.width - 20 - 192, canvasEl.height - 200)
+    canvas.drawImage(leftImage, 20, canvasEl.height - 150)
+    canvas.drawImage(rightImage, 20 + 20 + 192, canvasEl.height - 150)
+    canvas.drawImage(upImage, canvasEl.width - 20 - 20 - 192 - 192, canvasEl.height - 150)
+    canvas.drawImage(dashImage, canvasEl.width - 20 - 192, canvasEl.height - 150)
     canvas.drawImage(skinImage, canvasEl.width - 20 - 64, canvasEl.height * 0.05)
     canvas.drawImage(taggedImage, 20, canvasEl.height * 0.05)
   }
