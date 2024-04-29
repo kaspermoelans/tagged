@@ -215,11 +215,11 @@ window.addEventListener("touchstart", (e) => {
         socket.emit('inputs', inputs)
       }
 
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 150, y: canvasEl.height - 100, w: 168, h: 144})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 150, y: canvasEl.height - 100, w: 168, h: 144})) {
         inputs['up'] = true
         socket.emit('inputs', inputs)
       }
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 150, y: canvasEl.height - 100, w: 168, h: 144})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 150, y: canvasEl.height - 100, w: 168, h: 144})) {
         inputs['dash'] = true
         socket.emit('inputs', inputs)
       }
@@ -252,11 +252,11 @@ window.addEventListener("touchend", (e) => {
         socket.emit('inputs', inputs)
       }
 
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 150, y: canvasEl.height - 100, w: 168, h: 144})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 150, y: canvasEl.height - 100, w: 168, h: 144})) {
         inputs['up'] = false
         socket.emit('inputs', inputs)
       }
-      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x: canvasEl.width - 10 - 150, y: canvasEl.height - 100, w: 168, h: 144})) {
+      if (isColliding({x: clientX, y: clientY, w: 1, h: 1}, {x:  canvasEl.width - 168 - 150, y: canvasEl.height - 100, w: 168, h: 144})) {
         inputs['dash'] = false
         socket.emit('inputs', inputs)
       }
@@ -389,8 +389,8 @@ function loop() {
   if (isMobile) {
     canvas.drawImage(leftImage, 20, canvasEl.height - 100)
     canvas.drawImage(rightImage, 20 + 20 + 150, canvasEl.height - 100)
-    canvas.drawImage(upImage, canvasEl.width - 20 - 20 - 150 - 150, canvasEl.height - 100)
-    canvas.drawImage(dashImage, canvasEl.width - 20 - 150, canvasEl.height - 100)
+    canvas.drawImage(upImage, canvasEl.width - 20 - 150, canvasEl.height - 100)
+    canvas.drawImage(dashImage, canvasEl.width - 20 - 20 - 150 - 150, canvasEl.height - 100)
     canvas.drawImage(skinImage, canvasEl.width - 20 - 64, canvasEl.height * 0.05)
     canvas.drawImage(taggedImage, 20, canvasEl.height * 0.05)
   }
