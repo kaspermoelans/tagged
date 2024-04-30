@@ -19,7 +19,7 @@ const TILE_SIZE = 32
 let players = []
 let map2D
 const inputsMap = {}
-const skins = ["red_santa", "pink_santa", "banana", "tomato", "viking", "ninja", "pink_dude", "white_dude", "blue_dude"]
+const skins = ["red_santa", "pink_santa", "banana", "tomato", "viking", "ninja", "pink_dude", "white_dude", "blue_dude", "appeltaart", "black"]
 
 const boostNames = ["invisibility", "jumpboost", "umbrella", "speedboost", "shield", "portal"]
 const boostDurations = [30 * 1000, 30 * 1000, 30 * 1000, 30 * 1000, 15 * 1000, 0]
