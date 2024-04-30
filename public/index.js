@@ -79,6 +79,14 @@ right_blue_dudeImage.src = "/right_blue_dude.png";
 const left_blue_dudeImage = new Image();
 left_blue_dudeImage.src = "/left_blue_dude.png";
 
+const right_appeltaartImage = new Image();
+right_appeltaartImage.src = "/right_appeltaart.png";
+const left_appeltaartImage = new Image();
+left_appeltaartImage.src = "/left_appeltaart.png";
+
+const blackImage = new Image();
+blackImage.src = "/black.png";
+
 // Boosts
 const invisibilityImage = new Image();
 invisibilityImage.src = "/invisibility.png";
@@ -348,6 +356,10 @@ function loop() {
           canvas.drawImage(left_white_dudeImage, player.x - cameraX, player.y - cameraY)
         } else if (player.skin === "blue_dude") {
           canvas.drawImage(left_blue_dudeImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "appeltaart") {
+          canvas.drawImage(left_appeltaartImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "black") {
+          canvas.drawImage(blackImage, player.x - cameraX, player.y - cameraY)
         } else {
           canvas.drawImage(left_red_santaImage, player.x - cameraX, player.y - cameraY)
         }
@@ -372,6 +384,10 @@ function loop() {
           canvas.drawImage(right_white_dudeImage, player.x - cameraX, player.y - cameraY)
         } else if (player.skin === "blue_dude") {
           canvas.drawImage(right_blue_dudeImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "appeltaart") {
+          canvas.drawImage(left_appeltaartImage, player.x - cameraX, player.y - cameraY)
+        } else if (player.skin === "black") {
+          canvas.drawImage(blackImage, player.x - cameraX, player.y - cameraY)
         } else {
           canvas.drawImage(right_red_santaImage, player.x - cameraX, player.y - cameraY)
         }
