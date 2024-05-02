@@ -155,13 +155,13 @@ const inputs = {
 }
 
 window.addEventListener('keydown', (e) => {
-    if (e.key === 'z' || e.key === 'ArrowUp' || e.key === ' ') {
+    if (e.key === 'z' || e.key === 'w' || e.key === 'ArrowUp' || e.key === ' ') {
         inputs['up'] = true
     }
     if (e.key === 's' || e.key === 'ArrowDown') {
         inputs['dash'] = true
     }
-    if (e.key === 'q' || e.key === 'ArrowLeft') {
+    if (e.key === 'q' || e.key === 'a' || e.key === 'ArrowLeft') {
         inputs['left'] = true
     }
     if (e.key === 'd' || e.key === 'ArrowRight') {
@@ -177,15 +177,15 @@ window.addEventListener('keydown', (e) => {
 })
 
 window.addEventListener('keyup', (e) => {
-    if (e.key === 'z' || e.key === 'ArrowUp' || e.key === ' ') {
-        inputs['up'] = false
-    }
-    if (e.key === 's' || e.key === 'ArrowDown') {
-        inputs['dash'] = false
-    }
-    if (e.key === 'q' || e.key === 'ArrowLeft') {
-        inputs['left'] = false
-    }
+  if (e.key === 'z' || e.key === 'w' || e.key === 'ArrowUp' || e.key === ' ') {
+    inputs['up'] = false
+  }
+  if (e.key === 's' || e.key === 'ArrowDown') {
+      inputs['dash'] = false
+  }
+  if (e.key === 'q' || e.key === 'a' || e.key === 'ArrowLeft') {
+      inputs['left'] = false
+  }
     if (e.key === 'd' || e.key === 'ArrowRight') {
         inputs['right'] = false
     }
