@@ -14,6 +14,126 @@ document.addEventListener(
   { passive: false }
 );
 
+// Update the speed and jump values when sliders are moved
+const speedSlider = document.getElementById("speedSlider");
+const dashSlider = document.getElementById("dashSlider");
+const jumpSlider = document.getElementById("jumpSlider");
+const gravitySlider = document.getElementById("gravitySlider");
+const speedValue = document.getElementById("speedValue");
+const dashValue = document.getElementById("dashValue");
+const jumpValue = document.getElementById("jumpValue");
+const gravityValue = document.getElementById("gravityValue");
+
+
+speedSlider.addEventListener("input", () => {
+    speedValue.textContent = speedSlider.value;
+});
+
+dashSlider.addEventListener("input", () => {
+  dashValue.textContent = dashSlider.value;
+});
+
+jumpSlider.addEventListener("input", () => {
+    jumpValue.textContent = jumpSlider.value;
+});
+
+gravitySlider.addEventListener("input", () => {
+  gravityValue.textContent = gravitySlider.value;
+});
+
+
+// Reset button functionality
+resetButton.addEventListener("click", () => {
+  // Reset sliders to default values
+  speedSlider.value = 5;
+  dashSlider.value = 20;
+  jumpSlider.value = 12;
+  gravitySlider.value = 10;
+  
+  // Update displayed values
+  speedValue.textContent = speedSlider.value;
+  dashValue.textContent = dashSlider.value;
+  jumpValue.textContent = jumpSlider.value;
+  gravityValue.textContent = gravitySlider.value;
+});
+
+// Map selection logic
+let selectedMapIndex = 0; // Default to "Map 1" (index 0)
+const mapOptions = document.querySelectorAll('.map-option');
+
+// Function to select a map (for both user click and default selection)
+function selectMap(index) {
+    // Remove 'selected' class from all thumbnails
+    mapOptions.forEach((opt, i) => {
+        const img = opt.querySelector('img');
+        img.classList.remove('selected');
+
+        // Add 'selected' class to the clicked thumbnail (if index matches)
+        if (i === index) {
+            img.classList.add('selected');
+        }
+    });
+
+    // Set the selected map index
+    selectedMapIndex = index;
+    console.log("Selected Map Index:", selectedMapIndex); // Log selected map index for debugging
+}
+
+// Add click event listeners to each map option
+mapOptions.forEach((option, index) => {
+    option.addEventListener('click', () => {
+        selectMap(index);
+    });
+});
+
+// Set Map 1 (index 0) as selected by default
+selectMap(0);
+
+const socket = io();
+let serverID = ""
+
+const canvasEl = document.getElementById("canvas");
+canvasEl.width = window.innerWidth;
+canvasEl.height = window.innerHeight;
+const canvas = canvasEl.getContext("2d");
+
+const serverIDParagraph = document.getElementById('serverID');
+const serverDiv = document.getElementById('serverDiv');
+const createServerButton = document.getElementById('createServer');
+
+createServerButton.addEventListener('click', function() {
+  canvasEl.style.display = ""
+  serverDiv.style.display = "none"
+
+  console.log("Server ID: " + socket.id)
+  serverID = socket.id
+  serverIDParagraph.innerText = "Server ID: " + serverID
+
+  console.log("selected map: " + selectedMapIndex)
+  let modifiers = {
+    map: selectedMapIndex,
+    speed: parseInt(speedSlider.value),
+    dash: parseInt(dashSlider.value),
+    jump: parseInt(jumpSlider.value),
+    gravity: parseInt(gravitySlider.value)
+  }
+
+  console.log(modifiers)
+  socket.emit('createServer', modifiers)
+})
+
+const joinServerButton = document.getElementById('joinServerButton');
+const joinServerID = document.getElementById('joinServerId');
+
+joinServerButton.addEventListener('click', function() {
+  canvasEl.style.display = ""
+  serverDiv.style.display = "none"
+  console.log("Server ID: " + joinServerID.value)
+  serverID = joinServerID.value
+  serverIDParagraph.innerText = "Serverd ID: " + serverID
+  socket.emit('joinServer', joinServerID.value)
+})
+
 // Load mobile buttons
 const leftImage = new Image();
 leftImage.src = "/left.png";
@@ -106,13 +226,6 @@ shieldImage.src = "/shield.png";
 const portalImage = new Image();
 portalImage.src = "/portal.png";
 
-const canvasEl = document.getElementById("canvas");
-canvasEl.width = window.innerWidth;
-canvasEl.height = window.innerHeight;
-const canvas = canvasEl.getContext("2d");
-
-const socket = io();
-
 let map = [[]];
 let players = []
 let boosts = []
@@ -137,13 +250,15 @@ socket.on("map", (loadedMap) => {
   map = loadedMap
 });
 
-socket.on('players', (serverPlayers) => {
-    players = serverPlayers
+socket.on('servers', (servers) => {
+    if (serverID == "" || servers == "") {
+      return
+    }
+    let data = servers.find(server => server.id == serverID)
+    players = data.players
+    boosts = data.boosts
 })
 
-socket.on('boosts', (serverBoosts) => {
-  boosts = serverBoosts
-})
 
 const inputs = {
     up: false,
@@ -410,8 +525,6 @@ function loop() {
     canvas.drawImage(skinImage, canvasEl.width - 20 - 64, canvasEl.height * 0.05)
     canvas.drawImage(taggedImage, 20, canvasEl.height * 0.05)
   }
-
-  console.log(mouseDown)
 
   window.requestAnimationFrame(loop);
 }
