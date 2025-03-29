@@ -1,234 +1,11 @@
-const mapImage = new Image();
-mapImage.src = "/tiles.png";
-
-document.oncontextmenu = document.body.oncontextmenu = function() {return false;}
-document.firstElementChild.style.zoom = "reset";
-
-document.addEventListener(
-  'wheel',
-  function touchHandler(e) {
-    if (e.ctrlKey) {
-      e.preventDefault();
-    }
-  },
-  { passive: false }
-);
-
-// Update the speed and jump values when sliders are moved
-const speedSlider = document.getElementById("speedSlider");
-const dashSlider = document.getElementById("dashSlider");
-const jumpSlider = document.getElementById("jumpSlider");
-const gravitySlider = document.getElementById("gravitySlider");
-const speedValue = document.getElementById("speedValue");
-const dashValue = document.getElementById("dashValue");
-const jumpValue = document.getElementById("jumpValue");
-const gravityValue = document.getElementById("gravityValue");
-
-
-speedSlider.addEventListener("input", () => {
-    speedValue.textContent = speedSlider.value;
-});
-
-dashSlider.addEventListener("input", () => {
-  dashValue.textContent = dashSlider.value;
-});
-
-jumpSlider.addEventListener("input", () => {
-    jumpValue.textContent = jumpSlider.value;
-});
-
-gravitySlider.addEventListener("input", () => {
-  gravityValue.textContent = gravitySlider.value;
-});
-
-
-// Reset button functionality
-resetButton.addEventListener("click", () => {
-  // Reset sliders to default values
-  speedSlider.value = 5;
-  dashSlider.value = 20;
-  jumpSlider.value = 12;
-  gravitySlider.value = 10;
-  
-  // Update displayed values
-  speedValue.textContent = speedSlider.value;
-  dashValue.textContent = dashSlider.value;
-  jumpValue.textContent = jumpSlider.value;
-  gravityValue.textContent = gravitySlider.value;
-});
-
-// Map selection logic
-let selectedMapIndex = 0; // Default to "Map 1" (index 0)
-const mapOptions = document.querySelectorAll('.map-option');
-
-// Function to select a map (for both user click and default selection)
-function selectMap(index) {
-    // Remove 'selected' class from all thumbnails
-    mapOptions.forEach((opt, i) => {
-        const img = opt.querySelector('img');
-        img.classList.remove('selected');
-
-        // Add 'selected' class to the clicked thumbnail (if index matches)
-        if (i === index) {
-            img.classList.add('selected');
-        }
-    });
-
-    // Set the selected map index
-    selectedMapIndex = index;
-    console.log("Selected Map Index:", selectedMapIndex); // Log selected map index for debugging
-}
-
-// Add click event listeners to each map option
-mapOptions.forEach((option, index) => {
-    option.addEventListener('click', () => {
-        selectMap(index);
-    });
-});
-
-// Set Map 1 (index 0) as selected by default
-selectMap(0);
-
-const socket = io();
+const socket = io(); 
 let serverID = ""
-
-const canvasEl = document.getElementById("canvas");
-canvasEl.width = window.innerWidth;
-canvasEl.height = window.innerHeight;
-const canvas = canvasEl.getContext("2d");
-
-const serverIDParagraph = document.getElementById('serverID');
-const serverDiv = document.getElementById('serverDiv');
-const createServerButton = document.getElementById('createServer');
-
-createServerButton.addEventListener('click', function() {
-  canvasEl.style.display = ""
-  serverDiv.style.display = "none"
-
-  console.log("Server ID: " + socket.id)
-  serverID = socket.id
-  serverIDParagraph.innerText = "Server ID: " + serverID
-
-  console.log("selected map: " + selectedMapIndex)
-  let modifiers = {
-    map: selectedMapIndex,
-    speed: parseInt(speedSlider.value),
-    dash: parseInt(dashSlider.value),
-    jump: parseInt(jumpSlider.value),
-    gravity: parseInt(gravitySlider.value)
-  }
-
-  console.log(modifiers)
-  socket.emit('createServer', modifiers)
-})
-
-const joinServerButton = document.getElementById('joinServerButton');
-const joinServerID = document.getElementById('joinServerId');
-
-joinServerButton.addEventListener('click', function() {
-  canvasEl.style.display = ""
-  serverDiv.style.display = "none"
-  console.log("Server ID: " + joinServerID.value)
-  serverID = joinServerID.value
-  serverIDParagraph.innerText = "Serverd ID: " + serverID
-  socket.emit('joinServer', joinServerID.value)
-})
-
-// Load mobile buttons
-const leftImage = new Image();
-leftImage.src = "/left.png";
-const rightImage = new Image();
-rightImage.src = "/right.png";
-const upImage = new Image();
-upImage.src = "/up.png";
-const dashImage = new Image();
-dashImage.src = "/dash.png";
-const skinImage = new Image();
-skinImage.src = "/skin.png";
-const taggedImage = new Image();
-taggedImage.src = "/tagged.png";
-
-// Skins
-const right_taggedImage = new Image();
-right_taggedImage.src = "/right_tagged.png";
-const left_taggedImage = new Image();
-left_taggedImage.src = "/left_tagged.png";
-
-const right_red_santaImage = new Image();
-right_red_santaImage.src = "/right_red_santa.png";
-const left_red_santaImage = new Image();
-left_red_santaImage.src = "/left_red_santa.png";
-
-const right_pink_santaImage = new Image();
-right_pink_santaImage.src = "/right_pink_santa.png";
-const left_pink_santaImage = new Image();
-left_pink_santaImage.src = "/left_pink_santa.png";
-
-const right_bananaImage = new Image();
-right_bananaImage.src = "/right_banana.png";
-const left_bananaImage = new Image();
-left_bananaImage.src = "/left_banana.png";
-
-const right_tomatoImage = new Image();
-right_tomatoImage.src = "/right_tomato.png";
-const left_tomatoImage = new Image();
-left_tomatoImage.src = "/left_tomato.png";
-
-const right_vikingImage = new Image();
-right_vikingImage.src = "/right_viking.png";
-const left_vikingImage = new Image();
-left_vikingImage.src = "/left_viking.png";
-
-const right_ninjaImage = new Image();
-right_ninjaImage.src = "/right_ninja.png";
-const left_ninjaImage = new Image();
-left_ninjaImage.src = "/left_ninja.png";
-
-const right_pink_dudeImage = new Image();
-right_pink_dudeImage.src = "/right_pink_dude.png";
-const left_pink_dudeImage = new Image();
-left_pink_dudeImage.src = "/left_pink_dude.png";
-
-const right_white_dudeImage = new Image();
-right_white_dudeImage.src = "/right_white_dude.png";
-const left_white_dudeImage = new Image();
-left_white_dudeImage.src = "/left_white_dude.png";
-
-const right_blue_dudeImage = new Image();
-right_blue_dudeImage.src = "/right_blue_dude.png";
-const left_blue_dudeImage = new Image();
-left_blue_dudeImage.src = "/left_blue_dude.png";
-
-const right_appeltaartImage = new Image();
-right_appeltaartImage.src = "/right_appeltaart.png";
-const left_appeltaartImage = new Image();
-left_appeltaartImage.src = "/left_appeltaart.png";
-
-const blackImage = new Image();
-blackImage.src = "/black.png";
-
-// Boosts
-const invisibilityImage = new Image();
-invisibilityImage.src = "/invisibility.png";
-
-const jumpboostImage = new Image();
-jumpboostImage.src = "/jumpboost.png";
-
-const umbrellaImage = new Image();
-umbrellaImage.src = "/umbrella.png";
-
-const speedboostImage = new Image();
-speedboostImage.src = "/speedboost.png";
-
-const shieldImage = new Image();
-shieldImage.src = "/shield.png";
-
-const portalImage = new Image();
-portalImage.src = "/portal.png";
+let partyID = ""
 
 let map = [[]];
 let players = []
 let boosts = []
+let letGameWorkPlease = false
 
 const boostNames = ["invisibility", "jumpboost", "umbrella", "speedboost", "shield", "portal"]
 
@@ -242,23 +19,100 @@ document.body.onmouseup = function() {
   --mouseDown;
 }
 
+// Updated scoreboard update function
+function updateScoreboard(players, scoreboardTag) {
+  const scoreboard = document.getElementById(scoreboardTag);
+  scoreboard.innerHTML = "";
+
+  // Sort players by score (ascending)
+  players.sort((a, b) => a.score - b.score);
+
+  let placement = 1;
+  let previousScore = null;
+  let rankMap = new Map(); // Map to track ranks for duplicate scores
+
+  players.forEach((player, index) => {
+    // Assign rank based on score (shared placement for same scores)
+    if (!rankMap.has(player.score)) {
+      rankMap.set(player.score, placement);
+    }
+    const rank = rankMap.get(player.score);
+
+    // Create list item for scoreboard
+    const li = document.createElement("li");
+    li.classList.add("score-entry");
+    li.textContent = `${rank}. ${player.nameTag}: ${player.score}`;
+    scoreboard.appendChild(li);
+
+    // Update placement only if next score is different
+    if (index === players.length - 1 || player.score !== players[index + 1].score) {
+      placement++;
+    }
+  });
+}
+
+function showEndGameScreen(players) {
+  const endGameScreen = document.getElementById("endGameScreen");
+  updateScoreboard(players, "finalScoreList")
+
+  // Show the end game screen with fade-in effect
+  endGameScreen.style.visibility = "visible";
+  endGameScreen.style.opacity = "1";
+}
+
+function updateTimer(totalSeconds) {
+  let minutes = Math.floor(totalSeconds / 60);
+  let seconds = Math.floor(totalSeconds % 60);
+  const timerElement = document.getElementById("timer");
+  timerElement.textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+}
+
 socket.on("connect", () => {
   console.log("connected");
 });
 
-socket.on("map", (loadedMap) => {
+socket.on("map", (mapPartyID, loadedMap) => {
+  if (mapPartyID !== partyID) return
   map = loadedMap
+  const scoreboardColumn = document.getElementById("scoreboardColumn");
+  scoreboardColumn.style.visibility = "visible"
+  document.getElementById("timerContainer").style.visibility = "visible"
+  canvasEl.style.visibility = "visible"
+  partyContainerDiv.style.visibility = "hidden"
+  document.getElementById("endGameScreen").style.visibility = "hidden"
 });
 
-socket.on('servers', (servers) => {
-    if (serverID == "" || servers == "") {
+socket.on('parties', (parties) => {
+    if (partyID == "" || parties == "") {
       return
     }
-    let data = servers.find(server => server.id == serverID)
-    players = data.players
-    boosts = data.boosts
+    let party = parties.find(party => party.id == partyID)
+    players = party.game.players
+    boosts = party.game.boosts
+
+    if (party.game.timeLeft < 0 && letGameWorkPlease && canvasEl.style.visibility == "visible") {
+      const scoreboardColumn = document.getElementById("scoreboardColumn");
+      scoreboardColumn.style.visibility = "hidden"
+      document.getElementById("timerContainer").style.visibility = "hidden"
+      letGameWorkPlease = false
+      
+      showEndGameScreen(players)
+    }
+    if (party.game.timeLeft > 0) {
+      letGameWorkPlease = true
+    }
+    updateScoreboard(players, "scoreboard")
+    updateTimer(party.game.timeLeft/1000)
 })
 
+
+const backToLobbyButton = document.getElementById('backToLobby');
+
+backToLobbyButton.addEventListener('click', function() {
+  canvasEl.style.visibility = "hidden"
+  partyContainerDiv.style.visibility = "visible"
+  document.getElementById("endGameScreen").style.visibility = "hidden"
+})
 
 const inputs = {
     up: false,
@@ -324,7 +178,7 @@ function isColliding(rect1, rect2) {
 
 window.addEventListener("touchstart", (e) => {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if (isMobile) {
+  if (isMobile && canvasEl) {
     for (const touch of e.changedTouches) {
       const clientX = touch.clientX
       const clientY = touch.clientY
@@ -361,7 +215,7 @@ window.addEventListener("touchstart", (e) => {
 
 window.addEventListener("touchend", (e) => {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if (isMobile) {
+  if (isMobile && canvasEl) {
     for (const touch of e.changedTouches) {
       const clientX = touch.clientX
       const clientY = touch.clientY
@@ -397,6 +251,7 @@ window.addEventListener("touchend", (e) => {
 })
 
 function loop() {
+  //if (typeof canvasEl == undefined) return
   canvas.clearRect(0, 0, canvasEl.width, canvasEl.height);
   canvas.fillStyle = 'lightblue'
   canvas.fillRect(0, 0, canvasEl.width, canvasEl.height)
@@ -529,4 +384,6 @@ function loop() {
   window.requestAnimationFrame(loop);
 }
 
-window.requestAnimationFrame(loop);
+window.onload = function() {
+  window.requestAnimationFrame(loop);
+};

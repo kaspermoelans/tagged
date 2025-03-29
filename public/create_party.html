@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAGGED - Party Settings</title>
+    <style>
+        body, html {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #a0d2eb;
+            font-family: Arial, sans-serif;
+            color: #2d1f1b;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: bold;
+            color: #2d1f1b;
+            margin-bottom: 30px;
+            font-family: "Comic Sans MS", "Verdana", sans-serif;
+            text-shadow: 3px 3px 7px rgba(0, 0, 0, 0.3);
+            letter-spacing: 2px;
+        }
+
+        #partyContainer {
+            display: flex;
+            width: 70%;
+            gap: 20px;
+            padding: 20px;
+            background-color: #4c3a2d;
+            border: 1px solid #3a2b24;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+            visibility: visible;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            color: #e0e5c9;
+            border-right: 1px solid #594733;
+        }
+
+        .column:last-child {
+            border-right: none;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #e0e5c9;
+            text-align: center;
+            border-bottom: 1px solid #594733;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        /* Player List Styling */
+        #playerList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .player {
+            background-color: #f0ede4;
+            color: #2d1f1b;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: left;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Sliders */
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+            appearance: none;
+            background-color: #d1c6b8;
+            border-radius: 5px;
+            height: 6px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            background-color: #4c804c;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin-top: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            background-color: #4c804c;
+            color: white;
+            transition: background-color 0.2s;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        button#resetButton {
+            background-color: #ff6b6b;
+        }
+
+        button:hover {
+            background-color: #3b6a3b;
+        }
+
+        button#resetButton:hover {
+            background-color: #d95a5a;
+        }
+
+        /* Map Selection */
+        .map-selection {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .map-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .map-option img {
+            width: 120px;
+            height: 80px;
+            border: 3px solid #e0e5c9;
+            border-radius: 6px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .map-option span {
+            margin-top: 5px;
+            font-size: 14px;
+            color: #f0ede4;
+        }
+
+        .map-option:hover {
+            transform: scale(1.05);
+        }
+
+        .map-option img.selected {
+            border: 3px solid #4c804c;
+            transform: scale(1.05);
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            visibility: hidden;
+            display: block;
+        }
+
+        #partyIDParagraph {
+        position: absolute; /* Position it relative to the viewport */
+        top: 20px; /* Distance from the top */
+        right: 20px; /* Distance from the right */
+        z-index: 1000; /* Ensure it appears above the canvas */
+        background-color: rgba(255, 255, 255, 0.8); /* Optional: Semi-transparent background */
+        padding: 10px; /* Optional: Padding for readability */
+        border-radius: 5px; /* Optional: Rounded corners */
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Optional: Shadow for depth */
+        color: #2d1f1b; /* Text color */
+        font-size: 16px; /* Adjust font size if needed */
+        text-align: right; 
+        }
+
+        /* Scoreboard Styling */
+        #scoreboardColumn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(76, 58, 45, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+            color: #e0e5c9;
+            display: block;
+            visibility: hidden;
+        }
+
+        #scoreboard {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .score-entry {
+            background-color: #f0ede4;
+            color: #2d1f1b;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: left;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        #endGameScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(76, 58, 45, 0.5); /* Matching the scoreboard */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease-in-out;
+            color: #e0e5c9;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #finalScoreboard {
+            background-color: #4c3a2d; /* Matching scoreboard column */
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+            width: 60%;
+        }
+
+        #finalScoreList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #finalScoreList li {
+            background-color: #f0ede4; /* Matching player entry */
+            color: #2d1f1b;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: left;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        #backToLobby {
+            margin-top: 20px;
+            padding: 12px 20px;
+            font-size: 18px;
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        #backToLobby:hover {
+            background-color: #d95a5a;
+        }
+
+        #timerContainer {
+            position: absolute;
+            top: 20px;
+            right: 50%;
+            transform: translateX(50%);
+            background-color: rgba(76, 58, 45, 0.9); /* Matching scoreboard style */
+            color: #e0e5c9;
+            padding: 10px 15px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            visibility: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>TAGGED</h1>
+
+    <div id="partyContainer">
+        <!-- Player List Column -->
+        <div class="column" id="playerColumn" style="flex: 1;">
+            <h2>Party</h2>
+            <ul id="playerList">
+            </ul>
+        </div>
+        
+        <!-- Host Server Settings Column -->
+        <div class="column" id="hostColumn" style="flex: 2;">
+            <h2>Game Settings</h2>
+
+            <!-- Map Selection Section -->
+            <div class="map-selection">
+                <div class="map-option" data-map="map1">
+                    <img src="img/map1-thumbnail.png" alt="Map 1">
+                    <span class="map-name">Original</span>
+                </div>
+                <div class="map-option" data-map="map2">
+                    <img src="img/map2-thumbnail.png" alt="Map 2">
+                    <span class="map-name">Angry Man</span>
+                </div>
+            </div>
+
+            <!-- Sliders -->
+            <label for="speedSlider">Speed: <span id="speedValue">5</span></label>
+            <input type="range" id="speedSlider" min="1" max="15" value="5" oninput="updateValue('speedValue', this.value)">
+
+            <label for="dashSlider">Dash: <span id="dashValue">20</span></label>
+            <input type="range" id="dashSlider" min="0" max="60" value="20" oninput="updateValue('dashValue', this.value)">
+            
+            <label for="jumpSlider">Jump Height: <span id="jumpValue">12</span></label>
+            <input type="range" id="jumpSlider" min="6" max="24" value="12" oninput="updateValue('jumpValue', this.value)">
+
+            <label for="gravitySlider">Gravity: <span id="gravityValue">10</span></label>
+            <input type="range" id="gravitySlider" min="1" max="20" value="10" oninput="updateValue('gravityValue', this.value)">
+
+            <!-- Buttons -->
+            <button id="resetButton" onclick="resetSettings()">Reset to Default</button>
+            <button id="startGame">Start Game</button>
+        </div>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <p id="partyIDParagraph" style="z-index: 1;"></p>
+
+    <div id="timerContainer">
+        <span id="timer">00:00</span>
+    </div>    
+
+    <!-- Scoreboard Column -->
+    <div class="column" id="scoreboardColumn" style="flex: 1; z-index: 1;">
+        <h2>Scoreboard</h2>
+        <ul id="scoreboard">
+            <!-- Scores will be dynamically added here -->
+        </ul>
+    </div>
+
+    <div id="endGameScreen">
+        <h1 style="color: #e0e5c9;">RESULTS</h1>
+        <div id="finalScoreboard">
+            <h2>Final Scores</h2>
+            <ul id="finalScoreList"></ul>
+        </div>
+        <button id="backToLobby">Go Back to Lobby</button>
+    </div>    
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="load_images.js"></script>
+    
+    <script src="game.js"></script>
+    <script src="create_party.js"></script>
+    
+</body>
+</html>

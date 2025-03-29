@@ -1,0 +1,3 @@
+function playerType() {
+    return ("host")
+}
