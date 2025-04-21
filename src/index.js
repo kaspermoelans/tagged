@@ -120,22 +120,22 @@ const skins = [
         name: "earthy",
         idle: {
             name: "idle",
-            fps: 0,
+            fps: 1,
             totalFrames: 1
         },
         walk: {
             name: "walk",
-            fps: 0,
+            fps: 1,
             totalFrames: 1
         },
         jump: {
             name: "jump",
-            fps: 0,
+            fps: 1,
             totalFrames: 1
         },
         fall: {
             name: "fall",
-            fps: 0,
+            fps: 1,
             totalFrames: 1
         }
     },
