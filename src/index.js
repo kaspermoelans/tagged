@@ -23,7 +23,146 @@ let map2D
 const mapSpawnPoints = [{x: 1910, y: 2200}, {x: 780, y: 0}]
 
 const inputsMap = {}
-const skins = ["red_santa", "pink_santa", "banana", "tomato", "viking", "ninja", "pink_dude", "white_dude", "blue_dude", "appeltaart", "black"]
+const skins = [
+    {
+        name: "stonie",
+        idle: {
+            name: "idle",
+            fps: 2,
+            totalFrames: 2
+        },
+        walk: {
+            name: "walk",
+            fps: 10,
+            totalFrames: 8
+        },
+        jump: {
+            name: "jump",
+            fps: 5,
+            totalFrames: 8
+        },
+        fall: {
+            name: "fall",
+            fps: 5,
+            totalFrames: 8
+        }
+    },
+    {
+        name: "energon",
+        idle: {
+            name: "idle",
+            fps: 2,
+            totalFrames: 4
+        },
+        walk: {
+            name: "walk",
+            fps: 10,
+            totalFrames: 8
+        },
+        jump: {
+            name: "jump",
+            fps: 5,
+            totalFrames: 8
+        },
+        fall: {
+            name: "fall",
+            fps: 5,
+            totalFrames: 8
+        }
+    },
+    {
+        name: "barbarian",
+        idle: {
+            name: "idle",
+            fps: 2,
+            totalFrames: 2
+        },
+        walk: {
+            name: "walk",
+            fps: 10,
+            totalFrames: 8
+        },
+        jump: {
+            name: "jump",
+            fps: 5,
+            totalFrames: 8
+        },
+        fall: {
+            name: "fall",
+            fps: 5,
+            totalFrames: 8
+        }
+    },
+    {
+        name: "ninja",
+        idle: {
+            name: "idle",
+            fps: 2,
+            totalFrames: 2
+        },
+        walk: {
+            name: "walk",
+            fps: 10,
+            totalFrames: 8
+        },
+        jump: {
+            name: "jump",
+            fps: 5,
+            totalFrames: 8
+        },
+        fall: {
+            name: "fall",
+            fps: 5,
+            totalFrames: 8
+        }
+    },
+    {
+        name: "earthy",
+        idle: {
+            name: "idle",
+            fps: 0,
+            totalFrames: 1
+        },
+        walk: {
+            name: "walk",
+            fps: 0,
+            totalFrames: 1
+        },
+        jump: {
+            name: "jump",
+            fps: 0,
+            totalFrames: 1
+        },
+        fall: {
+            name: "fall",
+            fps: 0,
+            totalFrames: 1
+        }
+    },
+    {
+        name: "bo",
+        idle: {
+            name: "idle",
+            fps: 2,
+            totalFrames: 2
+        },
+        walk: {
+            name: "walk",
+            fps: 10,
+            totalFrames: 8
+        },
+        jump: {
+            name: "jump",
+            fps: 5,
+            totalFrames: 8
+        },
+        fall: {
+            name: "fall",
+            fps: 5,
+            totalFrames: 8
+        }
+    }
+]
 
 const boostNames = ["invisibility", "jumpboost", "umbrella", "speedboost", "shield", "portal"]
 const boostDurations = [30 * 1000, 30 * 1000, 30 * 1000, 30 * 1000, 15 * 1000, 0]
@@ -44,7 +183,40 @@ function isColliding(rect1, rect2) {
         rect1.h + rect1.y > rect2.y
     );
 }
-  
+
+function isTouchingCeiling(player, map) {
+    for (let row = 0; row < map.length; row++) {
+        for (let col = 0; col < map[0].length; col++) {
+            const tile = map[row][col];
+
+            if (
+                tile &&
+                isColliding(
+                    {
+                        x: player.x,
+                        y: player.y,
+                        w: 32,  // Assuming player width is 32px
+                        h: 32,  // Assuming player height is 32px
+                    },
+                    {
+                        x: col * TILE_SIZE,
+                        y: row * TILE_SIZE,
+                        w: TILE_SIZE,
+                        h: TILE_SIZE,
+                    }
+                )
+            ) {
+                // Check if the player is touching the ceiling (player's top is below the tile)
+                if (player.y >= row * TILE_SIZE && player.y < row * TILE_SIZE + TILE_SIZE) {
+                    return true; // Player is touching the ceiling
+                }
+            }
+        }
+    }
+
+    return false; // No ceiling collision detected
+}
+
 function isCollidingWithMap(player, map) {
     for (let row = 0; row < map.length; row++) {
         for (let col = 0; col < map[0].length; col++) {
@@ -83,6 +255,33 @@ function tick(delta) {
                 const previousY = player.y
                 const previousX = player.x
                 
+                player.frameTimer += delta
+
+                const frameDuration = 1000 / player.animation.fps
+                if (player.frameTimer >= frameDuration) {
+                    player.frameTimer = 0
+                    player.currentFrame = (player.currentFrame + 1) % player.animation.totalFrames
+                }
+
+                if (player.speedY <= 0 && !isCollidingWithMap(player, map2D[party.game.modifiers.map])) {
+                    if (player.animation.name != "jump") {
+                        player.animation = player.skin.jump
+                        player.currentFrame = 0
+                    }
+                } else if (player.speedY > 6 && !isCollidingWithMap(player, map2D[party.game.modifiers.map])) {
+                    if (player.animation.name != "fall") {
+                        player.animation = player.skin.fall
+                        player.currentFrame = 0
+                    }
+                } else if (inputs.left || inputs.right) {
+                    if (player.animation.name != "walk"){
+                        player.animation = player.skin.walk
+                        player.currentFrame = 0
+                    }
+                } else if (player.animation.name != "idle") {
+                    player.animation = player.skin.idle
+                    player.currentFrame = 0
+                }
 
                 if (player.tagged === "no" || player.countdown <= 0) {
                     player.y += player.speedY
@@ -145,7 +344,7 @@ function tick(delta) {
 
                 if (inputs.switchSkin) {
                     player.skinNumber += 1
-                    if (player.skinNumber > skins.length) {
+                    if (player.skinNumber > skins.length - 1) {
                         player.skinNumber = 0
                     }
                     player.skin = skins[player.skinNumber]
@@ -366,7 +565,11 @@ async function main() {
                     speedX: 5,
                     speedY: 5,
                     speedJump: -12,
-                    skin: "red-santa",
+                    skin: skins[0],
+                    animation: skins[0].idle,
+                    currentFrame: 0,
+                    frameTimer: 0,
+                    touchingCeiling: false,
                     skinNumber: 0,
                     direction: "right",
                     tagged: "no",
