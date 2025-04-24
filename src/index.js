@@ -357,7 +357,7 @@ function tick(delta) {
                             player.tagged = "yes"
                             player.score += 1
                             otherPlayer.tagged = "no"
-                            player.countdown = 10 * 1000
+                            player.countdown = 5 * 1000
                         }
                     }
                 }
@@ -396,7 +396,7 @@ function tick(delta) {
 
                 //if (inputs.tagged) {
                     //player.tagged = "yes"
-                    //player.countdown = 10 * 1000
+                    //player.countdown = 5 * 1000
                     //inputs.tagged = true
                 //}
 
@@ -594,7 +594,7 @@ async function main() {
             // Shuffle the array and pick the first player
             let shuffledPlayers = party.game.players.sort(() => Math.random() - 0.5)
             shuffledPlayers[0].tagged = "yes"
-            shuffledPlayers[0].countdown = 10 * 1000
+            shuffledPlayers[0].countdown = 5 * 1000
             io.emit('map', party.id, map2D[party.modifiers.map])
         })
         
