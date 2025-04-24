@@ -120,22 +120,22 @@ const skins = [
         name: "earthy",
         idle: {
             name: "idle",
-            fps: 1,
+            fps: 0,
             totalFrames: 1
         },
         walk: {
             name: "walk",
-            fps: 1,
+            fps: 0,
             totalFrames: 1
         },
         jump: {
             name: "jump",
-            fps: 1,
+            fps: 0,
             totalFrames: 1
         },
         fall: {
             name: "fall",
-            fps: 1,
+            fps: 0,
             totalFrames: 1
         }
     },
@@ -595,6 +595,10 @@ async function main() {
             let shuffledPlayers = party.game.players.sort(() => Math.random() - 0.5)
             shuffledPlayers[0].tagged = "yes"
             shuffledPlayers[0].countdown = 5 * 1000
+            if (party.game.players.length >= 5) {
+                shuffledPlayers[1].tagged = "yes"
+                shuffledPlayers[1].countdown = 5 * 1000
+            }
             io.emit('map', party.id, map2D[party.modifiers.map])
         })
         
